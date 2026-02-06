@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TradeVault – Journal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="flex min-h-screen">
+
+  <aside class="w-64 bg-white border-r flex flex-col">
+    <div class="px-6 py-4 text-xl font-bold text-blue-600">TradeVault</div>
+
+    <nav class="flex-1 px-4 space-y-6 text-sm">
+      <div>
+        <p class="text-gray-400 mb-2">MAIN</p>
+        <a class="block px-3 py-2 rounded text-gray-600">Dashboard</a>
+        <a class="block px-3 py-2 rounded bg-blue-50 text-blue-600 font-medium">Journal</a>
+        <a class="block px-3 py-2 rounded text-gray-600">Analytics</a>
+      </div>
+
+      <div>
+        <p class="text-gray-400 mb-2">TOOLS</p>
+        <a class="block px-3 py-2 rounded text-gray-600">Saved Information</a>
+        <a class="block px-3 py-2 rounded text-gray-600">Economic Calendar</a>
+      </div>
+
+      <div>
+        <p class="text-gray-400 mb-2">SETTINGS</p>
+        <a class="block px-3 py-2 rounded text-gray-600">Preferences</a>
+        <a class="block px-3 py-2 rounded text-gray-600">Import / Export</a>
+      </div>
+    </nav>
+
+    <div class="px-4 py-4 border-t flex items-center gap-3">
+      <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+      <div>
+        <p class="text-sm font-medium">Arjun Patel</p>
+        <p class="text-xs text-gray-400">Pro Plan</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-6">
+
+    <div class="flex justify-between items-center mb-6">
+      <p class="text-gray-500">Journal / All Trades</p>
+      <div class="flex gap-2">
+        <button class="px-4 py-2 border rounded bg-white text-sm">Export CSV</button>
+        <button class="px-4 py-2 rounded bg-blue-600 text-white text-sm">+ New Entry</button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded shadow">
+
+      <div class="p-4 border-b flex flex-wrap gap-3 items-center justify-between">
+        <div class="flex gap-2 flex-wrap">
+          <button class="px-3 py-1 border rounded text-sm text-gray-600">Last 30 Days</button>
+          <button class="px-3 py-1 border rounded text-sm text-gray-600">Setup: All</button>
+          <button class="px-3 py-1 border rounded text-sm text-gray-600">Mood: Any</button>
+        </div>
+        <input class="border px-3 py-1 rounded text-sm w-64" placeholder="Search symbol or notes..." id="searchInput">
+      </div>
+
+      <table class="w-full text-sm" id="tradesTable">
+        <thead class="bg-gray-50 text-gray-500 text-left">
+          <tr>
+            <th class="p-3">Date / Time</th>
+            <th class="p-3">Instrument</th>
+            <th class="p-3">Side</th>
+            <th class="p-3">Setup</th>
+            <th class="p-3">P&L (₹)</th>
+            <th class="p-3">Mood</th>
+            <th class="p-3">Notes</th>
+            <th class="p-3"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr class="border-t">
+            <td colspan="8" class="p-8 text-center text-gray-400">Loading trades...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="p-4 flex justify-between text-sm text-gray-500">
+        <span id="paginationText">Showing 1 to 5 of 148 entries</span>
+        <div class="flex gap-2">
+          <button class="border px-3 py-1 rounded" id="prevPageBtn">‹</button>
+          <button class="border px-3 py-1 rounded" id="nextPageBtn">›</button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/journal.js"></script>
+</body>
+</html>
