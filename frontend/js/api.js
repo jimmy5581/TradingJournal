@@ -55,7 +55,7 @@ const apiCall = async (endpoint, options = {}) => {
 
     return data;
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('API Error: - api.js:58', error);
     throw error;
   }
 };
