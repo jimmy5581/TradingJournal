@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Test - Trade Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .upload-section {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 1rem 0;
+        }
+        .btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            background: #1976d2;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 2rem;
+        }
+        .result-box {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .field {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .field-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .field-value {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 OCR Trade Scanner Test</h1>
+        
+        <div class="info">
+            <strong>Test the OCR functionality:</strong><br>
+            Upload a trade screenshot (PNG, JPEG, WEBP). The system will extract visible trade details using Tesseract.js OCR.
+        </div>
+
+        <div class="upload-section">
+            <h3>Upload Trade Screenshot</h3>
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/webp">
+            <br>
+            <button class="btn" id="scanBtn" disabled>Scan Trade</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const scanBtn = document.getElementById('scanBtn');
+        const resultDiv = document.getElementById('result');
+
+        fileInput.addEventListener('change', (e) => {
+            scanBtn.disabled = !e.target.files[0];
+        });
+
+        scanBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Show loading
+            resultDiv.innerHTML = '<div class="loading">🔄 Processing screenshot with OCR...<br>This may take 5-10 seconds...</div>';
+            scanBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('screenshot', file);
+
+                const response = await fetch('http://localhost:5000/api/ocr/scan', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displaySuccess(result.data);
+                } else {
+                    displayError(result.error);
+                }
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                scanBtn.disabled = false;
+            }
+        });
+
+        function displaySuccess(data) {
+            const extracted = data.extracted;
+            const metadata = data.metadata;
+
+            resultDiv.innerHTML = `
+                <h3 class="success">✅ OCR Completed Successfully</h3>
+                
+                <div class="result-box">
+                    <h4>Extracted Trade Details:</h4>
+                    <div class="field">
+                        <span class="field-label">Symbol:</span>
+                        <span class="field-value">${extracted.symbol || 'Not found'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Side:</span>
+                        <span class="field-value">${extracted.side || 'Not found'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Entry Price:</span>
+                        <span class="field-value">${extracted.entryPrice ? '₹' + extracted.entryPrice : 'Not found'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Exit Price:</span>
+                        <span class="field-value">${extracted.exitPrice ? '₹' + extracted.exitPrice : 'Not found'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Quantity:</span>
+                        <span class="field-value">${extracted.quantity || 'Not found'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Timestamp:</span>
+                        <span class="field-value">${extracted.timestamp || 'Not found'}</span>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4>Metadata:</h4>
+                    <div class="field">
+                        <span class="field-label">OCR Text Length:</span>
+                        <span class="field-value">${metadata.ocrTextLength} characters</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Fields Extracted:</span>
+                        <span class="field-value">${metadata.fieldsExtracted}</span>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4>Raw OCR Text Preview:</h4>
+                    <pre>${metadata.rawTextPreview}</pre>
+                </div>
+
+                <div class="result-box">
+                    <h4>Full JSON Response:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        function displayError(error) {
+            resultDiv.innerHTML = `
+                <h3 class="error">❌ OCR Failed</h3>
+                <div class="result-box">
+                    <strong>Error:</strong> ${error}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

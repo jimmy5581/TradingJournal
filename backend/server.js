@@ -10,6 +10,7 @@ const tradeRoutes = require('./routes/tradeRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const symbolSearchRoutes = require('./routes/symbolSearchRoutes');
 const marketNewsRoutes = require('./routes/marketNewsRoutes');
+const ocrRoutes = require('./routes/ocrRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/trades', tradeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/symbol-search', symbolSearchRoutes);
 app.use('/api/market-news', marketNewsRoutes);
+app.use('/api/ocr', ocrRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
