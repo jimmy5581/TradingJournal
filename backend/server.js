@@ -8,6 +8,8 @@ const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const symbolSearchRoutes = require('./routes/symbolSearchRoutes');
+const marketNewsRoutes = require('./routes/marketNewsRoutes');
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/trades', tradeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/symbol-search', symbolSearchRoutes);
+app.use('/api/market-news', marketNewsRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));

@@ -122,7 +122,17 @@
       <div class="flex justify-between mb-3">
         <p class="font-semibold">Recent Trades (India)</p>
         <div class="flex gap-2">
-          <input class="border px-3 py-1 rounded text-sm" placeholder="Search NSE / BSE symbol">
+          <div class="relative">
+            <input 
+              id="symbolSearch" 
+              type="text"
+              class="border px-3 py-1 rounded text-sm w-64" 
+              placeholder="Search NSE / BSE symbol..."
+              autocomplete="off">
+            <div id="symbolDropdown" class="absolute hidden bg-white border rounded shadow-lg mt-1 w-64 max-h-64 overflow-y-auto z-10">
+              <!-- Dropdown results will be inserted here -->
+            </div>
+          </div>
           <button class="border px-3 py-1 rounded text-sm">Filter</button>
         </div>
       </div>
@@ -152,12 +162,10 @@
     <div class="bg-white p-4 rounded shadow">
       <div class="flex justify-between mb-3">
         <p class="font-semibold">India Market News</p>
-        <button class="border px-3 py-1 rounded text-sm">Refresh</button>
+        <button id="refreshNewsBtn" class="border px-3 py-1 rounded text-sm hover:bg-gray-50">Refresh</button>
       </div>
-      <ul class="text-sm space-y-2 text-gray-600">
-        <li>RBI policy decision impacts banking stocks</li>
-        <li>NIFTY shows strength ahead of weekly expiry</li>
-        <li>IT stocks gain on weak rupee</li>
+      <ul id="marketNewsList" class="text-sm space-y-2 text-gray-600">
+        <li class="text-gray-400">Loading news...</li>
       </ul>
     </div>
 
@@ -165,6 +173,8 @@
 </div>
 
 <script src="/js/api.js"></script>
+<script src="/js/symbolSearch.js"></script>
+<script src="/js/marketNews.js"></script>
 <script src="/js/dashboard.js"></script>
 </body>
 </html>
