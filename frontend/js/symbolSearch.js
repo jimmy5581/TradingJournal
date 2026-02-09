@@ -96,22 +96,33 @@
 
   function createResultItem(symbol, index) {
     const div = document.createElement('div');
-    div.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors';
+    div.className = 'px-3 py-2 cursor-pointer border-b last:border-b-0 transition-colors';
     div.setAttribute('data-index', index);
+    div.style.borderColor = 'var(--border-subtle)';
     
     div.innerHTML = `
       <div class="flex justify-between items-start">
         <div class="flex-1">
-          <p class="font-medium text-sm text-gray-900">${escapeHtml(symbol.symbol)}</p>
-          <p class="text-xs text-gray-500 truncate">${escapeHtml(symbol.description)}</p>
+          <p class="font-medium text-sm" style="color: var(--text-primary);">${escapeHtml(symbol.symbol)}</p>
+          <p class="text-xs truncate" style="color: var(--text-secondary);">${escapeHtml(symbol.description)}</p>
         </div>
-        ${symbol.type ? `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded ml-2">${escapeHtml(symbol.type)}</span>` : ''}
+        ${symbol.type ? `<span class="text-xs px-2 py-1 rounded ml-2" style="background-color: var(--button-secondary-hover); color: var(--text-secondary);">${escapeHtml(symbol.type)}</span>` : ''}
       </div>
     `;
 
 
     div.addEventListener('click', () => {
       selectSymbol(symbol);
+    });
+
+    div.addEventListener('mouseenter', () => {
+      div.style.backgroundColor = 'var(--button-secondary-hover)';
+    });
+
+    div.addEventListener('mouseleave', () => {
+      if (!div.classList.contains('keyboard-active')) {
+        div.style.backgroundColor = '';
+      }
     });
 
     return div;
@@ -131,7 +142,7 @@
 
   function showLoadingState() {
     dropdown.innerHTML = `
-      <div class="px-3 py-2 text-sm text-gray-500 text-center">
+      <div class="px-3 py-2 text-sm text-center" style="color: var(--text-secondary);">
         <span>Searching...</span>
       </div>
     `;
@@ -140,7 +151,7 @@
 
   function showNoResults() {
     dropdown.innerHTML = `
-      <div class="px-3 py-2 text-sm text-gray-500 text-center">
+      <div class="px-3 py-2 text-sm text-center" style="color: var(--text-secondary);">
         No symbols found for "${escapeHtml(currentQuery)}"
       </div>
     `;
@@ -149,7 +160,7 @@
 
   function showError(message) {
     dropdown.innerHTML = `
-      <div class="px-3 py-2 text-sm text-red-600 text-center">
+      <div class="px-3 py-2 text-sm text-center" style="color: var(--color-loss);">
         ${escapeHtml(message)}
       </div>
     `;
@@ -168,7 +179,7 @@
     const items = dropdown.querySelectorAll('[data-index]');
     if (items.length === 0) return;
 
-    const currentActive = dropdown.querySelector('.bg-blue-50');
+    const currentActive = dropdown.querySelector('.keyboard-active');
     let currentIndex = currentActive ? parseInt(currentActive.getAttribute('data-index')) : -1;
 
     switch(e.key) {
@@ -201,10 +212,12 @@
   function highlightItem(items, index) {
     items.forEach((item, i) => {
       if (i === index) {
-        item.classList.add('bg-blue-50');
+        item.classList.add('keyboard-active');
+        item.style.backgroundColor = 'var(--button-secondary-hover)';
         item.scrollIntoView({ block: 'nearest' });
       } else {
-        item.classList.remove('bg-blue-50');
+        item.classList.remove('keyboard-active');
+        item.style.backgroundColor = '';
       }
     });
   }

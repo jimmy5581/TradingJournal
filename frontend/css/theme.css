@@ -1,17 +1,106 @@
-:root {
-  --primary-green: #047857;
-  --primary-green-dark: #065f46;
-  --secondary-green: #10b981;
-  --accent-green: #34d399;
-  --bg-mint: #f0fdf4;
-  --bg-mint-card: #ffffff;
-  --border-green: #d1fae5;
+:root[data-theme="light"] {
+  --bg-primary: #f0fdf4;
+  --bg-card: #ffffff;
   --text-primary: #111827;
   --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --success-text: #047857;
-  --chart-green: #10b981;
-  --chart-gradient: rgba(16, 185, 129, 0.1);
+  --border-subtle: #d1fae5;
+  --neutral-chart: #10b981;
+  --color-profit: #047857;
+  --color-loss: #dc2626;
+  --primary-green: #047857;
+  --primary-green-dark: #065f46;
+  --accent-green: #34d399;
+  --chart-bg: #fafafa;
+  --sidebar-bg: #ffffff;
+  --button-secondary-bg: #ffffff;
+  --button-secondary-hover: #f0fdf4;
+  --filter-active-bg: #34d399;
+  --toggle-active-bg: #047857;
+  --table-hover: #f0fdf4;
+  --mood-calm-bg: #dbeafe;
+  --mood-calm-text: #1e40af;
+  --mood-fomo-bg: #fef3c7;
+  --mood-fomo-text: #92400e;
+  --mood-revenge-bg: #fee2e2;
+  --mood-revenge-text: #991b1b;
+  --mood-confident-bg: #f0fdf4;
+  --mood-confident-text: #047857;
+  --mood-anxious-bg: #fed7aa;
+  --mood-anxious-text: #c2410c;
+  --mood-neutral-bg: #f3f4f6;
+  --mood-neutral-text: #4b5563;
+  --status-long-bg: #d1fae5;
+  --status-short-bg: #fee2e2;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-card: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-subtle: #334155;
+  --neutral-chart: #64748b;
+  --color-profit: #22c55e;
+  --color-loss: #ef4444;
+  --primary-green: #22c55e;
+  --primary-green-dark: #16a34a;
+  --accent-green: #4ade80;
+  --chart-bg: #0f172a;
+  --sidebar-bg: #1e293b;
+  --button-secondary-bg: #1e293b;
+  --button-secondary-hover: #334155;
+  --filter-active-bg: #4ade80;
+  --toggle-active-bg: #22c55e;
+  --table-hover: #334155;
+  --mood-calm-bg: #1e3a8a;
+  --mood-calm-text: #93c5fd;
+  --mood-fomo-bg: #78350f;
+  --mood-fomo-text: #fde047;
+  --mood-revenge-bg: #7f1d1d;
+  --mood-revenge-text: #fca5a5;
+  --mood-confident-bg: #14532d;
+  --mood-confident-text: #86efac;
+  --mood-anxious-bg: #7c2d12;
+  --mood-anxious-text: #fdba74;
+  --mood-neutral-bg: #374151;
+  --mood-neutral-text: #d1d5db;
+  --status-long-bg: #14532d;
+  --status-short-bg: #7f1d1d;
+}
+
+:root {
+  --bg-primary: #f0fdf4;
+  --bg-card: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-subtle: #d1fae5;
+  --neutral-chart: #10b981;
+  --color-profit: #047857;
+  --color-loss: #dc2626;
+  --primary-green: #047857;
+  --primary-green-dark: #065f46;
+  --accent-green: #34d399;
+  --chart-bg: #fafafa;
+  --sidebar-bg: #ffffff;
+  --button-secondary-bg: #ffffff;
+  --button-secondary-hover: #f0fdf4;
+  --filter-active-bg: #34d399;
+  --toggle-active-bg: #047857;
+  --table-hover: #f0fdf4;
+  --mood-calm-bg: #dbeafe;
+  --mood-calm-text: #1e40af;
+  --mood-fomo-bg: #fef3c7;
+  --mood-fomo-text: #92400e;
+  --mood-revenge-bg: #fee2e2;
+  --mood-revenge-text: #991b1b;
+  --mood-confident-bg: #f0fdf4;
+  --mood-confident-text: #047857;
+  --mood-anxious-bg: #fed7aa;
+  --mood-anxious-text: #c2410c;
+  --mood-neutral-bg: #f3f4f6;
+  --mood-neutral-text: #4b5563;
+  --status-long-bg: #d1fae5;
+  --status-short-bg: #fee2e2;
 }
 
 * {
@@ -21,13 +110,13 @@
 }
 
 body {
-  background-color: var(--bg-mint) !important;
+  background-color: var(--bg-primary) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .sidebar {
-  background-color: #ffffff;
-  border-right: 1px solid var(--border-green);
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-subtle);
 }
 
 .sidebar-brand {
@@ -46,18 +135,18 @@ body {
 }
 
 .nav-link:hover {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
   color: var(--primary-green);
 }
 
 .nav-link-active {
-  background-color: var(--bg-mint) !important;
+  background-color: var(--button-secondary-hover) !important;
   color: var(--primary-green) !important;
   font-weight: 500;
 }
 
 .nav-section-title {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -81,48 +170,48 @@ body {
 }
 
 .btn-secondary {
-  background-color: white;
+  background-color: var(--button-secondary-bg);
   color: var(--text-secondary);
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
-  border: 1px solid var(--border-green);
+  border: 1px solid var(--border-subtle);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
   border-color: var(--accent-green);
 }
 
 .card {
-  background-color: var(--bg-mint-card);
+  background-color: var(--bg-card);
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-green);
+  border: 1px solid var(--border-subtle);
 }
 
 .card-header {
   padding: 1rem;
-  border-bottom: 1px solid var(--border-green);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .kpi-card {
-  background-color: var(--bg-mint-card);
+  background-color: var(--bg-card);
   padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-green);
+  border: 1px solid var(--border-subtle);
 }
 
 .kpi-value-positive {
-  color: var(--primary-green) !important;
+  color: var(--color-profit) !important;
   font-weight: 700;
 }
 
 .kpi-change-positive {
-  color: var(--success-text) !important;
+  color: var(--color-profit) !important;
   font-size: 0.75rem;
 }
 
@@ -133,19 +222,19 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid var(--border-green);
-  background-color: white;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--button-secondary-bg);
   color: var(--text-secondary);
 }
 
 .toggle-btn-active {
-  background-color: var(--primary-green) !important;
+  background-color: var(--toggle-active-bg) !important;
   color: white !important;
-  border-color: var(--primary-green) !important;
+  border-color: var(--toggle-active-bg) !important;
 }
 
 .toggle-btn:hover:not(.toggle-btn-active) {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
   border-color: var(--accent-green);
 }
 
@@ -155,37 +244,37 @@ body {
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  border: 1px solid var(--border-green);
-  background-color: white;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--button-secondary-bg);
   color: var(--text-secondary);
 }
 
 .filter-btn-active {
-  background-color: var(--accent-green) !important;
+  background-color: var(--filter-active-bg) !important;
   color: white !important;
-  border-color: var(--accent-green) !important;
+  border-color: var(--filter-active-bg) !important;
 }
 
 .filter-btn:hover {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
 }
 
 table thead {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
   color: var(--text-secondary);
 }
 
 table tbody tr {
-  border-top: 1px solid var(--border-green);
+  border-top: 1px solid var(--border-subtle);
 }
 
 table tbody tr:hover {
-  background-color: var(--bg-mint);
+  background-color: var(--table-hover);
 }
 
 .status-long {
-  background-color: #d1fae5;
-  color: var(--primary-green);
+  background-color: var(--status-long-bg);
+  color: var(--color-profit);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -193,8 +282,8 @@ table tbody tr:hover {
 }
 
 .status-short {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: var(--status-short-bg);
+  color: var(--color-loss);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -202,28 +291,30 @@ table tbody tr:hover {
 }
 
 .pnl-positive {
-  color: var(--primary-green) !important;
+  color: var(--color-profit) !important;
   font-weight: 600;
 }
 
 .pnl-negative {
-  color: #dc2626 !important;
+  color: var(--color-loss) !important;
   font-weight: 600;
 }
 
 .chart-container {
   position: relative;
   height: 18rem;
-  background-color: #fafafa;
+  background-color: var(--chart-bg);
   border-radius: 0.5rem;
 }
 
 input[type="text"],
 input[type="search"] {
-  border: 1px solid var(--border-green);
+  border: 1px solid var(--border-subtle);
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   transition: border-color 0.15s ease;
 }
 
@@ -235,16 +326,17 @@ input[type="search"]:focus {
 }
 
 .pagination-btn {
-  border: 1px solid var(--border-green);
+  border: 1px solid var(--border-subtle);
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
-  background-color: white;
+  background-color: var(--button-secondary-bg);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: var(--bg-mint);
+  background-color: var(--button-secondary-hover);
   border-color: var(--accent-green);
 }
 
@@ -259,7 +351,7 @@ input[type="search"]:focus {
 }
 
 .section-divider {
-  border-top: 1px solid var(--border-green);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .avatar {
@@ -281,7 +373,7 @@ input[type="search"]:focus {
 }
 
 .loading-spinner {
-  border: 2px solid var(--border-green);
+  border: 2px solid var(--border-subtle);
   border-top-color: var(--primary-green);
   border-radius: 9999px;
   width: 3rem;
@@ -300,31 +392,56 @@ input[type="search"]:focus {
 }
 
 .mood-calm {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: var(--mood-calm-bg);
+  color: var(--mood-calm-text);
 }
 
 .mood-fomo {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--mood-fomo-bg);
+  color: var(--mood-fomo-text);
 }
 
 .mood-revenge {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--mood-revenge-bg);
+  color: var(--mood-revenge-text);
 }
 
 .mood-confident {
-  background-color: var(--bg-mint);
-  color: var(--primary-green);
+  background-color: var(--mood-confident-bg);
+  color: var(--mood-confident-text);
 }
 
 .mood-anxious {
-  background-color: #fed7aa;
-  color: #c2410c;
+  background-color: var(--mood-anxious-bg);
+  color: var(--mood-anxious-text);
 }
 
 .mood-neutral {
-  background-color: #f3f4f6;
-  color: #4b5563;
+  background-color: var(--mood-neutral-bg);
+  color: var(--mood-neutral-text);
+}
+
+.theme-toggle {
+  padding: 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  background-color: var(--button-secondary-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.theme-toggle:hover {
+  background-color: var(--button-secondary-hover);
+  border-color: var(--accent-green);
+}
+
+.theme-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }

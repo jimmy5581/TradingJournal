@@ -28,7 +28,7 @@ const renderTrades = (trades) => {
   if (trades.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="p-8" style="text-align: center; color: var(--text-muted);">
+        <td colspan="8" class="p-8" style="text-align: center; color: var(--text-secondary);">
           No trades found. Click "+ New Entry" to log your first trade.
         </td>
       </tr>
@@ -52,11 +52,11 @@ const renderTrades = (trades) => {
       <tr>
         <td class="p-3">
           <div class="font-medium">${API.formatDate(trade.date)}</div>
-          <div class="text-xs" style="color: var(--text-muted);">${trade.time} IST</div>
+          <div class="text-xs" style="color: var(--text-secondary);">${trade.time} IST</div>
         </td>
         <td class="p-3">
           <div class="font-medium">${trade.instrument}</div>
-          <div class="text-xs" style="color: var(--text-muted);">${trade.segment}</div>
+          <div class="text-xs" style="color: var(--text-secondary);">${trade.segment}</div>
         </td>
         <td class="p-3">
           <span class="${sideClass}">${trade.side}</span>
@@ -71,7 +71,7 @@ const renderTrades = (trades) => {
           </span>
         </td>
         <td class="p-3" style="color: var(--text-secondary);">${trade.notes ? trade.notes.substring(0, 30) + '...' : '-'}</td>
-        <td class="p-3 cursor-pointer" style="color: var(--text-muted);" onclick="showTradeMenu('${trade._id}')">⋯</td>
+        <td class="p-3 cursor-pointer" style="color: var(--text-secondary);" onclick="showTradeMenu('${trade._id}')">⋯</td>
       </tr>
     `;
   }).join('');

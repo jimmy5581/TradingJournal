@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,11 @@
         <header class="page-header">
             <h1 class="page-title">Log new trade</h1>
             <div class="header-actions">
+                <button type="button" id="themeToggle" class="theme-toggle" title="Toggle theme" style="width: auto; height: auto; padding: 0.625rem 1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
                 <button type="button" class="btn btn-secondary" id="saveDraftBtn">Save draft</button>
                 <button type="button" class="btn btn-primary" id="saveCloseBtn">Save & close</button>
             </div>
@@ -318,6 +323,7 @@
         </form>
     </div>
 
+    <script src="js/theme.js"></script>
     <script src="js/log-trade.js"></script>
 </body>
 </html>

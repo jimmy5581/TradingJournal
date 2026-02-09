@@ -68,19 +68,28 @@
 
     newsItems.forEach((item, index) => {
       const li = document.createElement('li');
-      li.className = 'hover:bg-gray-50 p-2 rounded transition-colors';
+      li.className = 'p-2 rounded transition-colors';
+      li.style.cursor = 'pointer';
+      
+      li.addEventListener('mouseenter', () => {
+        li.style.backgroundColor = 'var(--button-secondary-hover)';
+      });
+      
+      li.addEventListener('mouseleave', () => {
+        li.style.backgroundColor = '';
+      });
       
       if (item.url) {
         li.innerHTML = `
-          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="hover:underline" style="color: var(--primary-green);">
             ${escapeHtml(item.title)}
           </a>
-          ${item.source ? `<span class="text-xs text-gray-400 ml-2">${escapeHtml(item.source)}</span>` : ''}
+          ${item.source ? `<span class="text-xs ml-2" style="color: var(--text-secondary);">${escapeHtml(item.source)}</span>` : ''}
         `;
       } else {
         li.innerHTML = `
           <span>${escapeHtml(item.title)}</span>
-          ${item.source ? `<span class="text-xs text-gray-400 ml-2">${escapeHtml(item.source)}</span>` : ''}
+          ${item.source ? `<span class="text-xs ml-2" style="color: var(--text-secondary);">${escapeHtml(item.source)}</span>` : ''}
         `;
       }
 
@@ -89,15 +98,15 @@
   }
 
   function showLoading() {
-    newsList.innerHTML = '<li class="text-gray-400">Loading news...</li>';
+    newsList.innerHTML = '<li style="color: var(--text-secondary);">Loading news...</li>';
   }
 
   function showNoNews() {
-    newsList.innerHTML = '<li class="text-gray-400">No news available at the moment</li>';
+    newsList.innerHTML = '<li style="color: var(--text-secondary);">No news available at the moment</li>';
   }
 
   function showError(message) {
-    newsList.innerHTML = `<li class="text-red-600">Error: ${escapeHtml(message)}</li>`;
+    newsList.innerHTML = `<li style="color: var(--color-loss);">Error: ${escapeHtml(message)}</li>`;
   }
 
   function escapeHtml(text) {

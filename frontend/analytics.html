@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>TradeVault – Analytics</title>
@@ -48,6 +48,11 @@
     <div class="flex justify-between items-center">
       <p class="breadcrumb">Analytics / Overview</p>
       <div class="flex gap-2">
+        <button id="themeToggle" class="theme-toggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
         <button class="btn-secondary">Last 30 Days</button>
         <button class="btn-primary">Export Report</button>
       </div>
@@ -94,7 +99,7 @@
           <button id="rangeAll" class="filter-btn filter-btn-active">All Time</button>
         </div>
       </div>
-      <div id="chartContainer" class="h-72 rounded flex items-center justify-center" style="background-color: #fafafa;">
+      <div id="chartContainer" class="h-72 rounded flex items-center justify-center" style="background-color: var(--chart-bg);">
         <div id="chartLoader" class="hidden">
           <div class="loading-spinner"></div>
         </div>
@@ -129,6 +134,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/js/theme.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/analytics.js"></script>
 </body>

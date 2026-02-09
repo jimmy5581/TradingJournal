@@ -72,6 +72,27 @@ const renderChart = (response) => {
   const labels = data.map(item => item.date);
   const values = data.map(item => item.value);
 
+  const style = getComputedStyle(document.documentElement);
+  const neutralChart = style.getPropertyValue('--neutral-chart').trim();
+  const colorProfit = style.getPropertyValue('--color-profit').trim();
+  const colorLoss = style.getPropertyValue('--color-loss').trim();
+  const textSecondary = style.getPropertyValue('--text-secondary').trim();
+
+  let lineColor = neutralChart;
+  let fillColor = neutralChart + '20';
+  let barColor = neutralChart + '99';
+
+  if (activeView === 'pnl') {
+    const finalValue = values[values.length - 1];
+    if (finalValue >= 0) {
+      lineColor = colorProfit;
+      fillColor = colorProfit + '20';
+    } else {
+      lineColor = colorLoss;
+      fillColor = colorLoss + '20';
+    }
+  }
+
   const ctx = document.getElementById('analyticsChart').getContext('2d');
   
   const chartConfig = {
@@ -81,8 +102,8 @@ const renderChart = (response) => {
       datasets: [{
         label: title,
         data: values,
-        backgroundColor: chartType === 'bar' ? 'rgba(16, 185, 129, 0.6)' : 'rgba(16, 185, 129, 0.1)',
-        borderColor: 'rgb(16, 185, 129)',
+        backgroundColor: chartType === 'bar' ? barColor : fillColor,
+        borderColor: lineColor,
         borderWidth: 2,
         fill: chartType === 'line',
         tension: 0.4
@@ -111,17 +132,25 @@ const renderChart = (response) => {
         y: {
           beginAtZero: activeView === 'volume',
           ticks: {
+            color: textSecondary,
             callback: function(value) {
               if (activeView === 'pnl') {
                 return '₹' + value.toLocaleString();
               }
               return value;
             }
+          },
+          grid: {
+            color: textSecondary + '20'
           }
         },
         x: {
           ticks: {
+            color: textSecondary,
             maxTicksLimit: 10
+          },
+          grid: {
+            color: textSecondary + '20'
           }
         }
       }
@@ -217,7 +246,7 @@ const renderSetupPerformance = (setupData) => {
 
   const setups = Object.entries(setupData);
   if (setups.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-muted);">No setup data available</p>';
+    container.innerHTML = '<p style="color: var(--text-secondary);">No setup data available</p>';
     return;
   }
 
@@ -226,17 +255,17 @@ const renderSetupPerformance = (setupData) => {
   container.innerHTML = setups.map(([setup, data]) => {
     const isPositive = data.totalPnl >= 0;
     const width = maxPnl > 0 ? Math.abs(data.totalPnl / maxPnl * 100) : 0;
-    const barColor = isPositive ? 'background-color: var(--secondary-green);' : 'background-color: #ef4444;';
-    const textColor = isPositive ? 'color: var(--primary-green);' : 'color: #dc2626;';
+    const barColor = isPositive ? 'var(--color-profit)' : 'var(--color-loss)';
+    const textColor = isPositive ? 'var(--color-profit)' : 'var(--color-loss)';
 
     return `
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <span class="text-sm capitalize">${setup}</span>
-          <span class="text-sm font-medium" style="${textColor}">${API.formatCurrency(data.totalPnl)}</span>
+          <span class="text-sm font-medium" style="color: ${textColor};">${API.formatCurrency(data.totalPnl)}</span>
         </div>
-        <div class="h-2 rounded" style="background-color: var(--border-green);">
-          <div class="h-2 rounded" style="${barColor} width: ${width}%"></div>
+        <div class="h-2 rounded" style="background-color: var(--border-subtle);">
+          <div class="h-2 rounded" style="background-color: ${barColor}; width: ${width}%"></div>
         </div>
       </div>
     `;
@@ -268,12 +297,12 @@ const renderInsights = (insights) => {
   if (!insightsContainer) return;
 
   if (insights.length === 0) {
-    insightsContainer.innerHTML = '<p class="text-sm" style="color: var(--text-muted);">No insights available yet. Keep logging trades!</p>';
+    insightsContainer.innerHTML = '<p class="text-sm" style="color: var(--text-secondary);">No insights available yet. Keep logging trades!</p>';
     return;
   }
 
   insightsContainer.innerHTML = insights.map(insight => `
-    <div class="text-sm p-3 rounded" style="background-color: var(--bg-mint); color: var(--success-text);">
+    <div class="text-sm p-3 rounded" style="background-color: var(--button-secondary-hover); color: var(--color-profit);">
       ${insight}
     </div>
   `).join('');
@@ -288,4 +317,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('rangeWeek').addEventListener('click', () => changeRange('week'));
   document.getElementById('rangeMonth').addEventListener('click', () => changeRange('month'));
   document.getElementById('rangeAll').addEventListener('click', () => changeRange(null));
+
+  const observer = new MutationObserver(() => {
+    if (chartInstance) {
+      loadChart(activeView, activeRange);
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
 });

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>TradeVault – Journal</title>
@@ -48,6 +48,11 @@
     <div class="flex justify-between items-center mb-6">
       <p class="breadcrumb">Journal / All Trades</p>
       <div class="flex gap-2">
+        <button id="themeToggle" class="theme-toggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
         <button class="btn-secondary">Export CSV</button>
         <a href="log-trade.html" class="btn-primary">+ New Entry</a>
       </div>
@@ -98,6 +103,7 @@
   </main>
 </div>
 
+<script src="/js/theme.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/journal.js"></script>
 </body>

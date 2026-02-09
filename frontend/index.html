@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>TradeVault Dashboard</title>
@@ -48,6 +48,11 @@
     <div class="flex justify-between items-center">
       <p class="breadcrumb">Dashboard / Overview</p>
       <div class="flex gap-2">
+        <button id="themeToggle" class="theme-toggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
         <button class="btn-secondary">This Month</button>
         <a href="log-trade.html" class="btn-primary">+ New Entry</a>
       </div>
@@ -69,13 +74,13 @@
       <div class="kpi-card">
         <p class="text-sm" style="color: var(--text-secondary);">Profit Factor</p>
         <p class="text-2xl font-bold" id="profitFactor">2.85</p>
-        <p class="text-xs" style="color: var(--text-muted);" id="profitFactorTarget">Target: 2.50</p>
+        <p class="text-xs" style="color: var(--text-secondary);" id="profitFactorTarget">Target: 2.50</p>
       </div>
 
       <div class="kpi-card">
         <p class="text-sm" style="color: var(--text-secondary);">Avg R:R</p>
         <p class="text-2xl font-bold" id="avgRR">1 : 2.4</p>
-        <p class="text-xs" style="color: var(--text-muted);" id="avgRRTrades">Based on 42 trades</p>
+        <p class="text-xs" style="color: var(--text-secondary);" id="avgRRTrades">Based on 42 trades</p>
       </div>
     </div>
 
@@ -89,7 +94,7 @@
             <button class="toggle-btn">Volume</button>
           </div>
         </div>
-        <div class="h-64 rounded flex items-center justify-center" style="background-color: #fafafa; color: var(--text-muted);">
+        <div class="h-64 rounded flex items-center justify-center" style="background-color: var(--chart-bg); color: var(--text-secondary);">
           Equity Chart Placeholder
         </div>
       </div>
@@ -112,7 +117,7 @@
           <span>Avg Losing Trade</span>
           <span id="avgLosingTrade">₹18,000</span>
         </div>
-        <div class="text-xs p-3 rounded" style="background-color: var(--bg-mint); color: var(--success-text);">
+        <div class="text-xs p-3 rounded" style="background-color: var(--button-secondary-hover); color: var(--color-profit);">
           You are performing well on <b>NIFTY & BANKNIFTY weekly options</b> this week.
         </div>
       </div>
@@ -130,7 +135,7 @@
               class="border px-3 py-1 rounded text-sm w-64" 
               placeholder="Search NSE / BSE symbol..."
               autocomplete="off">
-            <div id="symbolDropdown" class="absolute hidden bg-white border rounded shadow-lg mt-1 w-64 max-h-64 overflow-y-auto z-10">
+            <div id="symbolDropdown" class="absolute hidden border rounded shadow-lg mt-1 w-64 max-h-64 overflow-y-auto z-10" style="background-color: var(--bg-card); border-color: var(--border-subtle);">
             </div>
           </div>
           <button class="filter-btn">Filter</button>
@@ -153,7 +158,7 @@
         </thead>
         <tbody>
           <tr>
-            <td class="p-2" colspan="9" style="text-align: center; color: var(--text-muted);">Loading...</td>
+            <td class="p-2" colspan="9" style="text-align: center; color: var(--text-secondary);">Loading...</td>
           </tr>
         </tbody>
       </table>
@@ -165,13 +170,14 @@
         <button id="refreshNewsBtn" class="btn-secondary">Refresh</button>
       </div>
       <ul id="marketNewsList" class="text-sm space-y-2" style="color: var(--text-secondary);">
-        <li style="color: var(--text-muted);">Loading news...</li>
+        <li style="color: var(--text-secondary);">Loading news...</li>
       </ul>
     </div>
 
   </main>
 </div>
 
+<script src="/js/theme.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/symbolSearch.js"></script>
 <script src="/js/marketNews.js"></script>
