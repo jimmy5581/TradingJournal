@@ -127,8 +127,14 @@ const AnalyticsAPI = {
     return apiCall(`/analytics/behavior?days=${days}`);
   },
 
-  getEquityCurve: (period = 'daily', days = 30) => {
-    return apiCall(`/analytics/equity-curve?period=${period}&days=${days}`);
+  getEquityCurve: (range) => {
+    const params = range ? `?range=${range}` : '';
+    return apiCall(`/analytics/equity-curve${params}`);
+  },
+
+  getTradingVolume: (range) => {
+    const params = range ? `?range=${range}` : '';
+    return apiCall(`/analytics/trading-volume${params}`);
   }
 };
 

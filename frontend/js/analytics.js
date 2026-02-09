@@ -2,25 +2,216 @@ if (!API.checkAuth()) {
   throw new Error('Not authenticated');
 }
 
-let currentPeriod = 'daily';
-let currentDays = 30;
+// Chart state management
+let activeView = 'pnl';  // Default view
+let activeRange = null;  // null = all time
+let chartInstance = null;
+let chartCache = {
+  pnl: {},
+  volume: {}
+};
 
 const loadAnalytics = async () => {
   try {
-    const [summary, behavior, equityCurve] = await Promise.all([
+    const [summary, behavior] = await Promise.all([
       API.Analytics.getSummary(),
-      API.Analytics.getBehaviorAnalysis(currentDays),
-      API.Analytics.getEquityCurve(currentPeriod, currentDays)
+      API.Analytics.getBehaviorAnalysis(30)
     ]);
 
     renderSummaryCards(summary.data);
     renderSetupPerformance(behavior.data.setupPerformance);
     renderMoodAnalysis(behavior.data.moodDistribution, behavior.data.totalTrades);
     renderInsights(behavior.data.insights);
+    
+    // Load default chart (P&L)
+    await loadChart(activeView, activeRange);
   } catch (error) {
     console.error('Error loading analytics:', error);
     API.showNotification('Failed to load analytics', 'error');
   }
+};
+
+// Chart loading function
+const loadChart = async (view, range) => {
+  const cacheKey = range || 'all';
+  
+  // Check cache first
+  if (chartCache[view][cacheKey]) {
+    renderChart(chartCache[view][cacheKey]);
+    return;
+  }
+
+  // Show loading state
+  showChartLoader(true);
+
+  try {
+    let chartData;
+    
+    if (view === 'pnl') {
+      chartData = await API.Analytics.getEquityCurve(range);
+    } else {
+      chartData = await API.Analytics.getTradingVolume(range);
+    }
+
+    // Cache the response
+    chartCache[view][cacheKey] = chartData;
+    
+    // Render chart
+    renderChart(chartData);
+    
+  } catch (error) {
+    console.error('Error loading chart:', error);
+    API.showNotification('Failed to load chart data', 'error');
+  } finally {
+    showChartLoader(false);
+  }
+};
+
+// Chart rendering function
+const renderChart = (response) => {
+  const { title, chartType, data } = response;
+  
+  // Update chart title
+  document.getElementById('chartTitle').textContent = title;
+  
+  // Destroy existing chart
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  // Prepare chart data
+  const labels = data.map(item => item.date);
+  const values = data.map(item => item.value);
+
+  const ctx = document.getElementById('analyticsChart').getContext('2d');
+  
+  // Chart configuration based on type
+  const chartConfig = {
+    type: chartType,
+    data: {
+      labels: labels,
+      datasets: [{
+        label: title,
+        data: values,
+        backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.1)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 2,
+        fill: chartType === 'line',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.parsed.y;
+              if (activeView === 'pnl') {
+                return `P&L: ${API.formatCurrency(value)}`;
+              }
+              return `Volume: ${value}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: activeView === 'volume',
+          ticks: {
+            callback: function(value) {
+              if (activeView === 'pnl') {
+                return '₹' + value.toLocaleString();
+              }
+              return value;
+            }
+          }
+        },
+        x: {
+          ticks: {
+            maxTicksLimit: 10
+          }
+        }
+      }
+    }
+  };
+
+  chartInstance = new Chart(ctx, chartConfig);
+};
+
+// Show/hide chart loader
+const showChartLoader = (show) => {
+  const loader = document.getElementById('chartLoader');
+  const canvas = document.getElementById('analyticsChart');
+  
+  if (show) {
+    loader.classList.remove('hidden');
+    canvas.style.display = 'none';
+  } else {
+    loader.classList.add('hidden');
+    canvas.style.display = 'block';
+  }
+};
+
+// Toggle button handlers
+const toggleView = async (view) => {
+  if (activeView === view) return;
+  
+  activeView = view;
+  
+  // Update button states
+  const pnlBtn = document.getElementById('togglePnl');
+  const volumeBtn = document.getElementById('toggleVolume');
+  
+  if (view === 'pnl') {
+    pnlBtn.classList.add('bg-blue-600', 'text-white');
+    pnlBtn.classList.remove('border', 'bg-white', 'text-gray-700');
+    volumeBtn.classList.remove('bg-blue-600', 'text-white');
+    volumeBtn.classList.add('border', 'bg-white', 'text-gray-700');
+  } else {
+    volumeBtn.classList.add('bg-blue-600', 'text-white');
+    volumeBtn.classList.remove('border', 'bg-white', 'text-gray-700');
+    pnlBtn.classList.remove('bg-blue-600', 'text-white');
+    pnlBtn.classList.add('border', 'bg-white', 'text-gray-700');
+  }
+  
+  // Load new chart
+  await loadChart(activeView, activeRange);
+};
+
+// Range filter handlers
+const changeRange = async (range) => {
+  if (activeRange === range) return;
+  
+  activeRange = range;
+  
+  // Update button states
+  const weekBtn = document.getElementById('rangeWeek');
+  const monthBtn = document.getElementById('rangeMonth');
+  const allBtn = document.getElementById('rangeAll');
+  
+  [weekBtn, monthBtn, allBtn].forEach(btn => {
+    btn.classList.remove('bg-blue-600', 'text-white');
+    btn.classList.add('border');
+  });
+  
+  if (range === 'week') {
+    weekBtn.classList.add('bg-blue-600', 'text-white');
+    weekBtn.classList.remove('border');
+  } else if (range === 'month') {
+    monthBtn.classList.add('bg-blue-600', 'text-white');
+    monthBtn.classList.remove('border');
+  } else {
+    allBtn.classList.add('bg-blue-600', 'text-white');
+    allBtn.classList.remove('border');
+  }
+  
+  // Load chart with new range
+  await loadChart(activeView, activeRange);
 };
 
 const renderSummaryCards = (data) => {
@@ -107,16 +298,17 @@ const renderInsights = (insights) => {
   `).join('');
 };
 
-const changePeriod = (period) => {
-  currentPeriod = period;
-  const buttons = document.querySelectorAll('.period-btn');
-  buttons.forEach(btn => {
-    btn.classList.remove('bg-blue-600', 'text-white');
-    btn.classList.add('border');
-  });
-  event.target.classList.add('bg-blue-600', 'text-white');
-  event.target.classList.remove('border');
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Load initial analytics
   loadAnalytics();
-};
-
-document.addEventListener('DOMContentLoaded', loadAnalytics);
+  
+  // Toggle button listeners
+  document.getElementById('togglePnl').addEventListener('click', () => toggleView('pnl'));
+  document.getElementById('toggleVolume').addEventListener('click', () => toggleView('volume'));
+  
+  // Range filter listeners
+  document.getElementById('rangeWeek').addEventListener('click', () => changeRange('week'));
+  document.getElementById('rangeMonth').addEventListener('click', () => changeRange('month'));
+  document.getElementById('rangeAll').addEventListener('click', () => changeRange(null));
+});

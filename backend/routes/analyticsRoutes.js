@@ -8,5 +8,6 @@ router.use(authMiddleware);
 router.get('/summary', analyticsController.getSummary);
 router.get('/behavior', analyticsController.getBehaviorAnalysis);
 router.get('/equity-curve', analyticsController.getEquityCurve);
+router.get('/trading-volume', analyticsController.getTradingVolume);
 
 module.exports = router;

@@ -233,55 +233,130 @@ exports.getBehaviorAnalysis = async (req, res, next) => {
 exports.getEquityCurve = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const { period = 'daily', days = 30 } = req.query;
+    const { range } = req.query;
 
-    const startDate = moment().subtract(days, 'days').startOf('day').toDate();
-    const trades = await Trade.find({
-      userId,
-      date: { $gte: startDate }
-    }).sort({ date: 1, time: 1 });
-
-    let runningPnl = 0;
-    const equityCurve = [];
-
-    if (period === 'daily') {
-      const tradesByDate = {};
-      trades.forEach(trade => {
-        const dateKey = moment(trade.date).format('YYYY-MM-DD');
-        if (!tradesByDate[dateKey]) {
-          tradesByDate[dateKey] = 0;
-        }
-        tradesByDate[dateKey] += trade.pnl;
-      });
-
-      Object.entries(tradesByDate)
-        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-        .forEach(([date, pnl]) => {
-          runningPnl += pnl;
-          equityCurve.push({
-            date,
-            pnl: parseFloat(pnl.toFixed(2)),
-            cumulativePnl: parseFloat(runningPnl.toFixed(2))
-          });
-        });
-    } else {
-      trades.forEach(trade => {
-        runningPnl += trade.pnl;
-        equityCurve.push({
-          date: moment(trade.date).format('YYYY-MM-DD'),
-          time: trade.time,
-          pnl: parseFloat(trade.pnl.toFixed(2)),
-          cumulativePnl: parseFloat(runningPnl.toFixed(2))
-        });
-      });
+    // Build date filter based on range
+    let dateFilter = {};
+    if (range === 'week') {
+      const startDate = moment().subtract(7, 'days').startOf('day').toDate();
+      dateFilter = { $gte: startDate };
+    } else if (range === 'month') {
+      const startDate = moment().subtract(30, 'days').startOf('day').toDate();
+      dateFilter = { $gte: startDate };
     }
+
+    // Fetch ONLY closed trades (exitPrice exists and not null)
+    const filter = {
+      userId,
+      exitPrice: { $ne: null, $exists: true }
+    };
+    
+    if (Object.keys(dateFilter).length > 0) {
+      filter.date = dateFilter;
+    }
+
+    const trades = await Trade.find(filter)
+      .sort({ date: 1, time: 1 })
+      .select('date side entryPrice exitPrice quantity');
+
+    // Calculate P&L per trade and build cumulative equity curve
+    let cumulativePnL = 0;
+    const dailyPnL = {};
+
+    trades.forEach(trade => {
+      // Calculate P&L based on side
+      let pnl;
+      if (trade.side === 'LONG') {
+        // LONG: (exitPrice - entryPrice) * quantity
+        pnl = (trade.exitPrice - trade.entryPrice) * trade.quantity;
+      } else {
+        // SHORT: (entryPrice - exitPrice) * quantity
+        pnl = (trade.entryPrice - trade.exitPrice) * trade.quantity;
+      }
+
+      const dateKey = moment(trade.date).format('YYYY-MM-DD');
+      
+      if (!dailyPnL[dateKey]) {
+        dailyPnL[dateKey] = 0;
+      }
+      dailyPnL[dateKey] += pnl;
+    });
+
+    // Build date-wise cumulative P&L
+    const data = Object.entries(dailyPnL)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .map(([date, pnl]) => {
+        cumulativePnL += pnl;
+        return {
+          date,
+          value: parseFloat(cumulativePnL.toFixed(2))
+        };
+      });
 
     res.status(200).json({
       success: true,
-      data: {
-        equityCurve,
-        finalPnl: parseFloat(runningPnl.toFixed(2))
+      view: 'pnl',
+      title: 'Equity Curve (INR)',
+      chartType: 'line',
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTradingVolume = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { range } = req.query;
+
+    // Build date filter based on range
+    let dateFilter = {};
+    if (range === 'week') {
+      const startDate = moment().subtract(7, 'days').startOf('day').toDate();
+      dateFilter = { $gte: startDate };
+    } else if (range === 'month') {
+      const startDate = moment().subtract(30, 'days').startOf('day').toDate();
+      dateFilter = { $gte: startDate };
+    }
+
+    // Fetch all trades (open + closed)
+    const filter = { userId };
+    
+    if (Object.keys(dateFilter).length > 0) {
+      filter.date = dateFilter;
+    }
+
+    const trades = await Trade.find(filter)
+      .select('date quantity')
+      .sort({ date: 1 });
+
+    // Aggregate quantity per day
+    const dailyVolume = {};
+
+    trades.forEach(trade => {
+      const dateKey = moment(trade.date).format('YYYY-MM-DD');
+      
+      if (!dailyVolume[dateKey]) {
+        dailyVolume[dateKey] = 0;
       }
+      dailyVolume[dateKey] += trade.quantity;
+    });
+
+    // Build date-wise volume data
+    const data = Object.entries(dailyVolume)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .map(([date, volume]) => ({
+        date,
+        value: volume
+      }));
+
+    res.status(200).json({
+      success: true,
+      view: 'volume',
+      title: 'Trading Volume',
+      chartType: 'bar',
+      data
     });
   } catch (error) {
     next(error);
