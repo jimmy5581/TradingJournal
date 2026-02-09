@@ -55,7 +55,7 @@ const loadRecentTrades = (trades) => {
   if (!tbody) return;
 
   tbody.innerHTML = trades.map(trade => `
-    <tr class="border-t">
+    <tr>
       <td class="p-2">${new Date(trade.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td>
       <td class="p-2">${trade.instrument}</td>
       <td class="p-2">${trade.segment}</td>
@@ -63,7 +63,7 @@ const loadRecentTrades = (trades) => {
       <td class="p-2">${trade.side}</td>
       <td class="p-2">${trade.entryPrice}</td>
       <td class="p-2">${trade.exitPrice}</td>
-      <td class="p-2 ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-500'}">
+      <td class="p-2 ${trade.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}">
         ${trade.pnl >= 0 ? '+' : ''}${API.formatCurrency(trade.pnl)}
       </td>
       <td class="p-2">Closed</td>

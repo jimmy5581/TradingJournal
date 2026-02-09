@@ -1,26 +1,19 @@
 const https = require('https');
 
-// Cache configuration
 const CACHE_DURATION = 20 * 60 * 1000; // 20 minutes
 let newsCache = {
   data: null,
   timestamp: null
 };
 
-/**
- * Get Indian market news via NewsAPI
- * GET /api/market-news
- */
 exports.getMarketNews = async (req, res) => {
   try {
-    // Check cache
     const now = Date.now();
     if (newsCache.data && newsCache.timestamp && (now - newsCache.timestamp) < CACHE_DURATION) {
       console.log('📰 Serving cached market news - marketNewsController.js:19');
       return res.json(newsCache.data);
     }
 
-    // Check if API key exists
     const apiKey = process.env.NEWSAPI_API_KEY;
     if (!apiKey) {
       console.error('❌ NEWSAPI_API_KEY not found in environment variables - marketNewsController.js:26');
@@ -32,7 +25,6 @@ exports.getMarketNews = async (req, res) => {
 
     console.log('📡 Fetching fresh market news from NewsAPI - marketNewsController.js:33');
 
-    // Call NewsAPI - India business news, top headlines
     const newsUrl = `https://newsapi.org/v2/top-headlines?country=in&category=business&pageSize=10&apiKey=${apiKey}`;
 
     https.get(newsUrl, (apiResponse) => {
@@ -54,7 +46,6 @@ exports.getMarketNews = async (req, res) => {
 
           if (apiResponse.statusCode === 429) {
             console.error('NewsAPI: Rate limit exceeded - marketNewsController.js:56');
-            // If rate limited, return cached data if available
             if (newsCache.data) {
               console.log('⚠️ Rate limited, serving stale cache - marketNewsController.js:59');
               return res.json(newsCache.data);
@@ -75,7 +66,6 @@ exports.getMarketNews = async (req, res) => {
 
           const result = JSON.parse(data);
 
-          // Check for error in response
           if (result.status === 'error') {
             console.error('NewsAPI error: - marketNewsController.js:80', result.message);
             return res.status(500).json({
@@ -84,7 +74,6 @@ exports.getMarketNews = async (req, res) => {
             });
           }
 
-          // Extract and format news items
           const newsItems = (result.articles || [])
             .slice(0, 10)
             .map(item => ({
@@ -102,7 +91,6 @@ exports.getMarketNews = async (req, res) => {
             cachedAt: new Date().toISOString()
           };
 
-          // Update cache
           newsCache = {
             data: response,
             timestamp: now
@@ -138,10 +126,6 @@ exports.getMarketNews = async (req, res) => {
   }
 };
 
-/**
- * Clear news cache (optional endpoint for manual cache refresh)
- * POST /api/market-news/refresh
- */
 exports.refreshNewsCache = (req, res) => {
   newsCache = { data: null, timestamp: null };
   console.log('🔄 News cache cleared - marketNewsController.js:147');

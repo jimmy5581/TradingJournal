@@ -1,12 +1,6 @@
-/**
- * Symbol Search with Autocomplete Dropdown
- * Searches NSE/BSE symbols via backend API
- */
-
 (function() {
   'use strict';
 
-  // Configuration
   const CONFIG = {
     API_ENDPOINT: '/api/symbol-search',
     MIN_CHARS: 2,
@@ -14,79 +8,60 @@
     MAX_RESULTS: 10
   };
 
-  // DOM Elements
   const searchInput = document.getElementById('symbolSearch');
   const dropdown = document.getElementById('symbolDropdown');
 
-  // State
   let debounceTimer = null;
   let currentQuery = '';
 
-  /**
-   * Initialize event listeners
-   */
   function init() {
     if (!searchInput || !dropdown) {
       console.error('Symbol search elements not found');
       return;
     }
 
-    // Input event - trigger search with debounce
     searchInput.addEventListener('input', handleInput);
 
-    // Focus event - show dropdown if has results
     searchInput.addEventListener('focus', () => {
       if (dropdown.children.length > 0) {
         showDropdown();
       }
     });
 
-    // Close dropdown on outside click
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
         hideDropdown();
       }
     });
 
-    // Keyboard navigation
     searchInput.addEventListener('keydown', handleKeydown);
   }
 
-  /**
-   * Handle input events with debouncing
-   */
   function handleInput(e) {
     const query = e.target.value.trim();
 
-    // Clear previous timer
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
 
-    // Hide dropdown if query too short
     if (query.length < CONFIG.MIN_CHARS) {
       hideDropdown();
       currentQuery = '';
       return;
     }
 
-    // Debounce the search
+
     debounceTimer = setTimeout(() => {
       performSearch(query);
     }, CONFIG.DEBOUNCE_MS);
   }
 
-  /**
-   * Perform symbol search via API
-   */
   async function performSearch(query) {
     currentQuery = query;
 
     try {
-      // Show loading state
       showLoadingState();
 
-      // Call backend API
       const response = await fetch(`${CONFIG.API_ENDPOINT}?q=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
@@ -96,7 +71,6 @@
 
       const data = await response.json();
 
-      // Display results
       if (data.success && data.data && data.data.length > 0) {
         displayResults(data.data);
       } else {
@@ -109,9 +83,6 @@
     }
   }
 
-  /**
-   * Display search results in dropdown
-   */
   function displayResults(symbols) {
     dropdown.innerHTML = '';
 
@@ -123,9 +94,6 @@
     showDropdown();
   }
 
-  /**
-   * Create a single result item
-   */
   function createResultItem(symbol, index) {
     const div = document.createElement('div');
     div.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors';
@@ -141,7 +109,7 @@
       </div>
     `;
 
-    // Click handler
+
     div.addEventListener('click', () => {
       selectSymbol(symbol);
     });
@@ -149,14 +117,10 @@
     return div;
   }
 
-  /**
-   * Handle symbol selection
-   */
   function selectSymbol(symbol) {
     searchInput.value = symbol.symbol;
     hideDropdown();
     
-    // Dispatch custom event for other components to listen
     const event = new CustomEvent('symbolSelected', {
       detail: { symbol: symbol.symbol, description: symbol.description, type: symbol.type }
     });
@@ -165,9 +129,6 @@
     console.log('Symbol selected:', symbol);
   }
 
-  /**
-   * Show loading state
-   */
   function showLoadingState() {
     dropdown.innerHTML = `
       <div class="px-3 py-2 text-sm text-gray-500 text-center">
@@ -177,9 +138,6 @@
     showDropdown();
   }
 
-  /**
-   * Show no results message
-   */
   function showNoResults() {
     dropdown.innerHTML = `
       <div class="px-3 py-2 text-sm text-gray-500 text-center">
@@ -189,9 +147,6 @@
     showDropdown();
   }
 
-  /**
-   * Show error message
-   */
   function showError(message) {
     dropdown.innerHTML = `
       <div class="px-3 py-2 text-sm text-red-600 text-center">
@@ -201,23 +156,14 @@
     showDropdown();
   }
 
-  /**
-   * Show dropdown
-   */
   function showDropdown() {
     dropdown.classList.remove('hidden');
   }
 
-  /**
-   * Hide dropdown
-   */
   function hideDropdown() {
     dropdown.classList.add('hidden');
   }
 
-  /**
-   * Handle keyboard navigation
-   */
   function handleKeydown(e) {
     const items = dropdown.querySelectorAll('[data-index]');
     if (items.length === 0) return;
@@ -252,9 +198,6 @@
     }
   }
 
-  /**
-   * Highlight specific item
-   */
   function highlightItem(items, index) {
     items.forEach((item, i) => {
       if (i === index) {
@@ -266,16 +209,12 @@
     });
   }
 
-  /**
-   * Escape HTML to prevent XSS
-   */
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
 
-  // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

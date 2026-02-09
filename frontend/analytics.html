@@ -3,41 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>TradeVault – Analytics</title>
+  <link rel="stylesheet" href="/css/theme.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
 
 <div class="flex min-h-screen">
 
-  <aside class="w-64 bg-white border-r flex flex-col">
-    <div class="px-6 py-4 text-xl font-bold text-blue-600">TradeVault</div>
+  <aside class="sidebar w-64 flex flex-col">
+    <div class="sidebar-brand px-6 py-4">TradeVault</div>
 
     <nav class="flex-1 px-4 space-y-6 text-sm">
       <div>
-        <p class="text-gray-400 mb-2">MAIN</p>
-        <a class="block px-3 py-2 rounded text-gray-600">Dashboard</a>
-        <a class="block px-3 py-2 rounded text-gray-600">Journal</a>
-        <a class="block px-3 py-2 rounded bg-blue-50 text-blue-600 font-medium">Analytics</a>
+        <p class="nav-section-title">MAIN</p>
+        <a class="nav-link" href="index.html">Dashboard</a>
+        <a class="nav-link" href="journal.html">Journal</a>
+        <a class="nav-link nav-link-active">Analytics</a>
       </div>
 
       <div>
-        <p class="text-gray-400 mb-2">TOOLS</p>
-        <a class="block px-3 py-2 rounded text-gray-600">Saved Information</a>
-        <a class="block px-3 py-2 rounded text-gray-600">Economic Calendar</a>
+        <p class="nav-section-title">TOOLS</p>
+        <a class="nav-link">Saved Information</a>
+        <a class="nav-link">Economic Calendar</a>
       </div>
 
       <div>
-        <p class="text-gray-400 mb-2">SETTINGS</p>
-        <a class="block px-3 py-2 rounded text-gray-600">Preferences</a>
-        <a class="block px-3 py-2 rounded text-gray-600">Import / Export</a>
+        <p class="nav-section-title">SETTINGS</p>
+        <a class="nav-link">Preferences</a>
+        <a class="nav-link">Import / Export</a>
       </div>
     </nav>
 
-    <div class="px-4 py-4 border-t flex items-center gap-3">
-      <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+    <div class="section-divider px-4 py-4 flex items-center gap-3">
+      <div class="avatar"></div>
       <div>
-        <p class="text-sm font-medium">Arjun Patel</p>
-        <p class="text-xs text-gray-400">Pro Plan</p>
+        <p class="user-name">Arjun Patel</p>
+        <p class="user-plan">Pro Plan</p>
       </div>
     </div>
   </aside>
@@ -45,57 +46,57 @@
   <main class="flex-1 p-6 space-y-6">
 
     <div class="flex justify-between items-center">
-      <p class="text-gray-500">Analytics / Overview</p>
+      <p class="breadcrumb">Analytics / Overview</p>
       <div class="flex gap-2">
-        <button class="px-4 py-2 border rounded bg-white text-sm">Last 30 Days</button>
-        <button class="px-4 py-2 rounded bg-blue-600 text-white text-sm">Export Report</button>
+        <button class="btn-secondary">Last 30 Days</button>
+        <button class="btn-primary">Export Report</button>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded shadow">
-        <p class="text-gray-500 text-sm">Net P&L</p>
-        <p class="text-2xl font-bold text-green-600" id="netPnlAnalytics">+₹45,200</p>
-        <p class="text-xs text-green-500" id="netPnlPercentage">~12.5%</p>
+      <div class="kpi-card">
+        <p class="text-sm" style="color: var(--text-secondary);">Net P&L</p>
+        <p class="text-2xl kpi-value-positive" id="netPnlAnalytics">+₹45,200</p>
+        <p class="kpi-change-positive" id="netPnlPercentage">~12.5%</p>
       </div>
 
-      <div class="bg-white p-4 rounded shadow">
-        <p class="text-gray-500 text-sm">Win Rate</p>
+      <div class="kpi-card">
+        <p class="text-sm" style="color: var(--text-secondary);">Win Rate</p>
         <p class="text-2xl font-bold" id="winRateAnalytics">62%</p>
-        <p class="text-xs text-green-500" id="winRateChange">↑ 2.1%</p>
+        <p class="kpi-change-positive" id="winRateChange">↑ 2.1%</p>
       </div>
 
-      <div class="bg-white p-4 rounded shadow">
-        <p class="text-gray-500 text-sm">Profit Factor</p>
+      <div class="kpi-card">
+        <p class="text-sm" style="color: var(--text-secondary);">Profit Factor</p>
         <p class="text-2xl font-bold" id="profitFactorAnalytics">1.85</p>
-        <p class="text-xs text-red-500" id="profitFactorChange">↓ 0.05</p>
+        <p class="text-xs pnl-negative" id="profitFactorChange">↓ 0.05</p>
       </div>
 
-      <div class="bg-white p-4 rounded shadow">
-        <p class="text-gray-500 text-sm">Avg Return</p>
+      <div class="kpi-card">
+        <p class="text-sm" style="color: var(--text-secondary);">Avg Return</p>
         <p class="text-2xl font-bold" id="avgReturn">+₹940</p>
-        <p class="text-xs text-green-500" id="avgReturnPercentage">~4.2%</p>
+        <p class="kpi-change-positive" id="avgReturnPercentage">~4.2%</p>
       </div>
     </div>
 
-    <div class="bg-white p-4 rounded shadow">
+    <div class="card p-4">
       <div class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-4">
           <p class="font-semibold" id="chartTitle">Equity Curve (INR)</p>
           <div class="flex gap-2">
-            <button id="togglePnl" class="px-3 py-1 text-xs rounded bg-blue-600 text-white font-medium">P&L</button>
-            <button id="toggleVolume" class="px-3 py-1 text-xs rounded border bg-white text-gray-700">Volume</button>
+            <button id="togglePnl" class="toggle-btn toggle-btn-active">P&L</button>
+            <button id="toggleVolume" class="toggle-btn">Volume</button>
           </div>
         </div>
         <div class="flex gap-2">
-          <button id="rangeWeek" class="px-3 py-1 text-xs rounded border">Week</button>
-          <button id="rangeMonth" class="px-3 py-1 text-xs rounded border">Month</button>
-          <button id="rangeAll" class="px-3 py-1 text-xs rounded bg-blue-600 text-white">All Time</button>
+          <button id="rangeWeek" class="filter-btn">Week</button>
+          <button id="rangeMonth" class="filter-btn">Month</button>
+          <button id="rangeAll" class="filter-btn filter-btn-active">All Time</button>
         </div>
       </div>
-      <div id="chartContainer" class="h-72 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+      <div id="chartContainer" class="h-72 rounded flex items-center justify-center" style="background-color: #fafafa;">
         <div id="chartLoader" class="hidden">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div class="loading-spinner"></div>
         </div>
         <canvas id="analyticsChart"></canvas>
       </div>
@@ -103,19 +104,19 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <div class="lg:col-span-2 bg-white p-4 rounded shadow space-y-4">
+      <div class="lg:col-span-2 card p-4 space-y-4">
         <p class="font-semibold">Performance by Setup</p>
         <div id="setupPerformanceContainer">
-          <p class="text-gray-400">Loading...</p>
+          <p style="color: var(--text-muted);">Loading...</p>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded shadow flex flex-col items-center justify-center">
+      <div class="card p-4 flex flex-col items-center justify-center">
         <p class="font-semibold mb-4">Mood Analysis</p>
-        <div class="w-40 h-40 rounded-full border-8 border-blue-500 flex items-center justify-center">
+        <div class="w-40 h-40 rounded-full flex items-center justify-center" style="border: 8px solid var(--accent-green);">
           <div class="text-center">
             <p class="text-2xl font-bold" id="moodTotalTrades">48</p>
-            <p class="text-xs text-gray-500">Trades</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Trades</p>
           </div>
         </div>
         <div class="mt-4 w-full space-y-2" id="moodBreakdown"></div>

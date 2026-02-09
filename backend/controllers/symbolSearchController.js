@@ -1,14 +1,9 @@
 const https = require('https');
 
-/**
- * Search stock symbols via Twelve Data API
- * GET /api/symbol-search?q=<query>
- */
 exports.searchSymbols = async (req, res) => {
   try {
     const { q } = req.query;
 
-    // Validate query parameter
     if (!q || q.trim().length < 2) {
       return res.status(400).json({
         success: false,
@@ -16,7 +11,6 @@ exports.searchSymbols = async (req, res) => {
       });
     }
 
-    // Check if API key exists
     const apiKey = process.env.TWELVEDATA_API_KEY;
     if (!apiKey) {
       console.error('❌ TWELVEDATA_API_KEY not found in environment variables - symbolSearchController.js:22');
@@ -28,7 +22,6 @@ exports.searchSymbols = async (req, res) => {
 
     console.log(`🔍 Searching Twelve Data for: "${q}" - symbolSearchController.js:29`);
 
-    // Call Twelve Data API
     const twelveDataUrl = `https://api.twelvedata.com/symbol_search?symbol=${encodeURIComponent(q)}&apikey=${apiKey}`;
 
     https.get(twelveDataUrl, (apiResponse) => {
@@ -40,7 +33,6 @@ exports.searchSymbols = async (req, res) => {
 
       apiResponse.on('end', () => {
         try {
-          // Check for API errors
           if (apiResponse.statusCode === 401) {
             console.error('Twelve Data API: Invalid API key - symbolSearchController.js:45');
             return res.status(500).json({
@@ -67,7 +59,6 @@ exports.searchSymbols = async (req, res) => {
 
           const result = JSON.parse(data);
 
-          // Check for error in response
           if (result.status === 'error') {
             console.error('Twelve Data API error: - symbolSearchController.js:72', result.message);
             return res.status(500).json({
@@ -76,9 +67,8 @@ exports.searchSymbols = async (req, res) => {
             });
           }
 
-          // Extract and limit results
           const symbols = (result.data || [])
-            .slice(0, 10) // Limit to 10 results
+            .slice(0, 10)
             .map(item => ({
               symbol: item.symbol,
               description: item.instrument_name || item.exchange,

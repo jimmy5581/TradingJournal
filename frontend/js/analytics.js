@@ -2,9 +2,8 @@ if (!API.checkAuth()) {
   throw new Error('Not authenticated');
 }
 
-// Chart state management
-let activeView = 'pnl';  // Default view
-let activeRange = null;  // null = all time
+let activeView = 'pnl';
+let activeRange = null;
 let chartInstance = null;
 let chartCache = {
   pnl: {},
@@ -23,7 +22,6 @@ const loadAnalytics = async () => {
     renderMoodAnalysis(behavior.data.moodDistribution, behavior.data.totalTrades);
     renderInsights(behavior.data.insights);
     
-    // Load default chart (P&L)
     await loadChart(activeView, activeRange);
   } catch (error) {
     console.error('Error loading analytics:', error);
@@ -31,17 +29,14 @@ const loadAnalytics = async () => {
   }
 };
 
-// Chart loading function
 const loadChart = async (view, range) => {
   const cacheKey = range || 'all';
   
-  // Check cache first
   if (chartCache[view][cacheKey]) {
     renderChart(chartCache[view][cacheKey]);
     return;
   }
 
-  // Show loading state
   showChartLoader(true);
 
   try {
@@ -53,10 +48,8 @@ const loadChart = async (view, range) => {
       chartData = await API.Analytics.getTradingVolume(range);
     }
 
-    // Cache the response
     chartCache[view][cacheKey] = chartData;
     
-    // Render chart
     renderChart(chartData);
     
   } catch (error) {
@@ -67,25 +60,20 @@ const loadChart = async (view, range) => {
   }
 };
 
-// Chart rendering function
 const renderChart = (response) => {
   const { title, chartType, data } = response;
   
-  // Update chart title
   document.getElementById('chartTitle').textContent = title;
   
-  // Destroy existing chart
   if (chartInstance) {
     chartInstance.destroy();
   }
 
-  // Prepare chart data
   const labels = data.map(item => item.date);
   const values = data.map(item => item.value);
 
   const ctx = document.getElementById('analyticsChart').getContext('2d');
   
-  // Chart configuration based on type
   const chartConfig = {
     type: chartType,
     data: {
@@ -93,8 +81,8 @@ const renderChart = (response) => {
       datasets: [{
         label: title,
         data: values,
-        backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.1)',
-        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: chartType === 'bar' ? 'rgba(16, 185, 129, 0.6)' : 'rgba(16, 185, 129, 0.1)',
+        borderColor: 'rgb(16, 185, 129)',
         borderWidth: 2,
         fill: chartType === 'line',
         tension: 0.4
@@ -143,7 +131,6 @@ const renderChart = (response) => {
   chartInstance = new Chart(ctx, chartConfig);
 };
 
-// Show/hide chart loader
 const showChartLoader = (show) => {
   const loader = document.getElementById('chartLoader');
   const canvas = document.getElementById('analyticsChart');
@@ -157,60 +144,54 @@ const showChartLoader = (show) => {
   }
 };
 
-// Toggle button handlers
 const toggleView = async (view) => {
   if (activeView === view) return;
   
   activeView = view;
   
-  // Update button states
   const pnlBtn = document.getElementById('togglePnl');
   const volumeBtn = document.getElementById('toggleVolume');
   
   if (view === 'pnl') {
-    pnlBtn.classList.add('bg-blue-600', 'text-white');
-    pnlBtn.classList.remove('border', 'bg-white', 'text-gray-700');
-    volumeBtn.classList.remove('bg-blue-600', 'text-white');
-    volumeBtn.classList.add('border', 'bg-white', 'text-gray-700');
+    pnlBtn.classList.add('toggle-btn-active');
+    pnlBtn.classList.remove('toggle-btn');
+    volumeBtn.classList.remove('toggle-btn-active');
+    volumeBtn.classList.add('toggle-btn');
   } else {
-    volumeBtn.classList.add('bg-blue-600', 'text-white');
-    volumeBtn.classList.remove('border', 'bg-white', 'text-gray-700');
-    pnlBtn.classList.remove('bg-blue-600', 'text-white');
-    pnlBtn.classList.add('border', 'bg-white', 'text-gray-700');
+    volumeBtn.classList.add('toggle-btn-active');
+    volumeBtn.classList.remove('toggle-btn');
+    pnlBtn.classList.remove('toggle-btn-active');
+    pnlBtn.classList.add('toggle-btn');
   }
   
-  // Load new chart
   await loadChart(activeView, activeRange);
 };
 
-// Range filter handlers
 const changeRange = async (range) => {
   if (activeRange === range) return;
   
   activeRange = range;
   
-  // Update button states
   const weekBtn = document.getElementById('rangeWeek');
   const monthBtn = document.getElementById('rangeMonth');
   const allBtn = document.getElementById('rangeAll');
   
   [weekBtn, monthBtn, allBtn].forEach(btn => {
-    btn.classList.remove('bg-blue-600', 'text-white');
-    btn.classList.add('border');
+    btn.classList.remove('filter-btn-active');
+    btn.classList.add('filter-btn');
   });
   
   if (range === 'week') {
-    weekBtn.classList.add('bg-blue-600', 'text-white');
-    weekBtn.classList.remove('border');
+    weekBtn.classList.add('filter-btn-active');
+    weekBtn.classList.remove('filter-btn');
   } else if (range === 'month') {
-    monthBtn.classList.add('bg-blue-600', 'text-white');
-    monthBtn.classList.remove('border');
+    monthBtn.classList.add('filter-btn-active');
+    monthBtn.classList.remove('filter-btn');
   } else {
-    allBtn.classList.add('bg-blue-600', 'text-white');
-    allBtn.classList.remove('border');
+    allBtn.classList.add('filter-btn-active');
+    allBtn.classList.remove('filter-btn');
   }
   
-  // Load chart with new range
   await loadChart(activeView, activeRange);
 };
 
@@ -236,7 +217,7 @@ const renderSetupPerformance = (setupData) => {
 
   const setups = Object.entries(setupData);
   if (setups.length === 0) {
-    container.innerHTML = '<p class="text-gray-400">No setup data available</p>';
+    container.innerHTML = '<p style="color: var(--text-muted);">No setup data available</p>';
     return;
   }
 
@@ -245,17 +226,17 @@ const renderSetupPerformance = (setupData) => {
   container.innerHTML = setups.map(([setup, data]) => {
     const isPositive = data.totalPnl >= 0;
     const width = maxPnl > 0 ? Math.abs(data.totalPnl / maxPnl * 100) : 0;
-    const barColor = isPositive ? 'bg-green-500' : 'bg-red-500';
-    const textColor = isPositive ? '' : 'text-red-500';
+    const barColor = isPositive ? 'background-color: var(--secondary-green);' : 'background-color: #ef4444;';
+    const textColor = isPositive ? 'color: var(--primary-green);' : 'color: #dc2626;';
 
     return `
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <span class="text-sm capitalize">${setup}</span>
-          <span class="text-sm font-medium ${textColor}">${API.formatCurrency(data.totalPnl)}</span>
+          <span class="text-sm font-medium" style="${textColor}">${API.formatCurrency(data.totalPnl)}</span>
         </div>
-        <div class="h-2 bg-gray-200 rounded">
-          <div class="h-2 ${barColor} rounded" style="width: ${width}%"></div>
+        <div class="h-2 rounded" style="background-color: var(--border-green);">
+          <div class="h-2 rounded" style="${barColor} width: ${width}%"></div>
         </div>
       </div>
     `;
@@ -287,27 +268,23 @@ const renderInsights = (insights) => {
   if (!insightsContainer) return;
 
   if (insights.length === 0) {
-    insightsContainer.innerHTML = '<p class="text-sm text-gray-400">No insights available yet. Keep logging trades!</p>';
+    insightsContainer.innerHTML = '<p class="text-sm" style="color: var(--text-muted);">No insights available yet. Keep logging trades!</p>';
     return;
   }
 
   insightsContainer.innerHTML = insights.map(insight => `
-    <div class="bg-blue-50 text-blue-700 text-sm p-3 rounded">
+    <div class="text-sm p-3 rounded" style="background-color: var(--bg-mint); color: var(--success-text);">
       ${insight}
     </div>
   `).join('');
 };
 
-// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-  // Load initial analytics
   loadAnalytics();
   
-  // Toggle button listeners
   document.getElementById('togglePnl').addEventListener('click', () => toggleView('pnl'));
   document.getElementById('toggleVolume').addEventListener('click', () => toggleView('volume'));
   
-  // Range filter listeners
   document.getElementById('rangeWeek').addEventListener('click', () => changeRange('week'));
   document.getElementById('rangeMonth').addEventListener('click', () => changeRange('month'));
   document.getElementById('rangeAll').addEventListener('click', () => changeRange(null));

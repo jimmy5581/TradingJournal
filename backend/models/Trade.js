@@ -97,19 +97,15 @@ const tradeSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Compound indexes for optimized queries
 tradeSchema.index({ userId: 1, date: -1 });
 tradeSchema.index({ userId: 1, createdAt: -1 });
 tradeSchema.index({ userId: 1, segment: 1 });
 
-// Auto-calculate PnL and R:R ratio before saving
 tradeSchema.pre('save', function(next) {
-  // Calculate P&L based on position side
   const priceDiff = this.exitPrice - this.entryPrice;
   const multiplier = this.side === 'LONG' ? 1 : -1;
   this.pnl = parseFloat((priceDiff * multiplier * this.quantity).toFixed(2));
   
-  // Calculate Risk:Reward ratio if both SL and target are set
   if (this.stopLoss && this.target) {
     const risk = Math.abs(this.entryPrice - this.stopLoss);
     const reward = Math.abs(this.target - this.entryPrice);
@@ -119,12 +115,10 @@ tradeSchema.pre('save', function(next) {
   next();
 });
 
-// Virtual field for quick win/loss identification
 tradeSchema.virtual('outcome').get(function() {
   return this.pnl > 0 ? 'win' : this.pnl < 0 ? 'loss' : 'breakeven';
 });
 
-// Ensure virtuals are included in JSON responses
 tradeSchema.set('toJSON', { virtuals: true });
 tradeSchema.set('toObject', { virtuals: true });
 

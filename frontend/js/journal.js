@@ -28,7 +28,7 @@ const renderTrades = (trades) => {
   if (trades.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="p-8 text-center text-gray-400">
+        <td colspan="8" class="p-8" style="text-align: center; color: var(--text-muted);">
           No trades found. Click "+ New Entry" to log your first trade.
         </td>
       </tr>
@@ -37,41 +37,41 @@ const renderTrades = (trades) => {
   }
 
   tbody.innerHTML = trades.map(trade => {
-    const sideClass = trade.side === 'LONG' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-    const pnlClass = trade.pnl >= 0 ? 'text-green-600' : 'text-red-500';
+    const sideClass = trade.side === 'LONG' ? 'status-long' : 'status-short';
+    const pnlClass = trade.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
     const moodColors = {
-      calm: 'bg-blue-100 text-blue-700',
-      fomo: 'bg-yellow-100 text-yellow-700',
-      revenge: 'bg-red-100 text-red-700',
-      anxious: 'bg-orange-100 text-orange-700',
-      confident: 'bg-cyan-100 text-cyan-700',
-      neutral: 'bg-gray-100 text-gray-700'
+      calm: 'mood-calm',
+      fomo: 'mood-fomo',
+      revenge: 'mood-revenge',
+      anxious: 'mood-anxious',
+      confident: 'mood-confident',
+      neutral: 'mood-neutral'
     };
 
     return `
-      <tr class="border-t">
+      <tr>
         <td class="p-3">
           <div class="font-medium">${API.formatDate(trade.date)}</div>
-          <div class="text-xs text-gray-400">${trade.time} IST</div>
+          <div class="text-xs" style="color: var(--text-muted);">${trade.time} IST</div>
         </td>
         <td class="p-3">
           <div class="font-medium">${trade.instrument}</div>
-          <div class="text-xs text-gray-400">${trade.segment}</div>
+          <div class="text-xs" style="color: var(--text-muted);">${trade.segment}</div>
         </td>
         <td class="p-3">
-          <span class="px-2 py-1 text-xs rounded ${sideClass}">${trade.side}</span>
+          <span class="${sideClass}">${trade.side}</span>
         </td>
         <td class="p-3">${trade.setup}</td>
-        <td class="p-3 ${pnlClass} font-medium">
+        <td class="p-3 ${pnlClass}">
           ${trade.pnl >= 0 ? '+' : ''}${API.formatCurrency(trade.pnl)}
         </td>
         <td class="p-3">
-          <span class="px-2 py-1 text-xs rounded ${moodColors[trade.mood] || moodColors.neutral}">
+          <span class="mood-badge ${moodColors[trade.mood] || moodColors.neutral}">
             ${trade.mood}
           </span>
         </td>
-        <td class="p-3 text-gray-500">${trade.notes ? trade.notes.substring(0, 30) + '...' : '-'}</td>
-        <td class="p-3 text-gray-400 cursor-pointer" onclick="showTradeMenu('${trade._id}')">⋯</td>
+        <td class="p-3" style="color: var(--text-secondary);">${trade.notes ? trade.notes.substring(0, 30) + '...' : '-'}</td>
+        <td class="p-3 cursor-pointer" style="color: var(--text-muted);" onclick="showTradeMenu('${trade._id}')">⋯</td>
       </tr>
     `;
   }).join('');

@@ -235,7 +235,6 @@ exports.getEquityCurve = async (req, res, next) => {
     const userId = req.userId;
     const { range } = req.query;
 
-    // Build date filter based on range
     let dateFilter = {};
     if (range === 'week') {
       const startDate = moment().subtract(7, 'days').startOf('day').toDate();
@@ -245,7 +244,6 @@ exports.getEquityCurve = async (req, res, next) => {
       dateFilter = { $gte: startDate };
     }
 
-    // Fetch ONLY closed trades (exitPrice exists and not null)
     const filter = {
       userId,
       exitPrice: { $ne: null, $exists: true }
@@ -259,18 +257,14 @@ exports.getEquityCurve = async (req, res, next) => {
       .sort({ date: 1, time: 1 })
       .select('date side entryPrice exitPrice quantity');
 
-    // Calculate P&L per trade and build cumulative equity curve
     let cumulativePnL = 0;
     const dailyPnL = {};
 
     trades.forEach(trade => {
-      // Calculate P&L based on side
       let pnl;
       if (trade.side === 'LONG') {
-        // LONG: (exitPrice - entryPrice) * quantity
         pnl = (trade.exitPrice - trade.entryPrice) * trade.quantity;
       } else {
-        // SHORT: (entryPrice - exitPrice) * quantity
         pnl = (trade.entryPrice - trade.exitPrice) * trade.quantity;
       }
 
@@ -282,7 +276,6 @@ exports.getEquityCurve = async (req, res, next) => {
       dailyPnL[dateKey] += pnl;
     });
 
-    // Build date-wise cumulative P&L
     const data = Object.entries(dailyPnL)
       .sort((a, b) => new Date(a[0]) - new Date(b[0]))
       .map(([date, pnl]) => {
@@ -310,7 +303,6 @@ exports.getTradingVolume = async (req, res, next) => {
     const userId = req.userId;
     const { range } = req.query;
 
-    // Build date filter based on range
     let dateFilter = {};
     if (range === 'week') {
       const startDate = moment().subtract(7, 'days').startOf('day').toDate();
@@ -320,7 +312,6 @@ exports.getTradingVolume = async (req, res, next) => {
       dateFilter = { $gte: startDate };
     }
 
-    // Fetch all trades (open + closed)
     const filter = { userId };
     
     if (Object.keys(dateFilter).length > 0) {
@@ -331,7 +322,6 @@ exports.getTradingVolume = async (req, res, next) => {
       .select('date quantity')
       .sort({ date: 1 });
 
-    // Aggregate quantity per day
     const dailyVolume = {};
 
     trades.forEach(trade => {
@@ -343,7 +333,6 @@ exports.getTradingVolume = async (req, res, next) => {
       dailyVolume[dateKey] += trade.quantity;
     });
 
-    // Build date-wise volume data
     const data = Object.entries(dailyVolume)
       .sort((a, b) => new Date(a[0]) - new Date(b[0]))
       .map(([date, volume]) => ({

@@ -1,8 +1,3 @@
-/**
- * Market News Fetcher
- * Loads Indian market news from backend API
- */
-
 (function() {
   'use strict';
 
@@ -14,25 +9,17 @@
   const newsList = document.getElementById('marketNewsList');
   const refreshBtn = document.getElementById('refreshNewsBtn');
 
-  /**
-   * Initialize news loader
-   */
   function init() {
     if (!newsList || !refreshBtn) {
       console.error('Market news elements not found');
       return;
     }
 
-    // Load news on page load
     loadNews();
 
-    // Refresh button handler
     refreshBtn.addEventListener('click', handleRefresh);
   }
 
-  /**
-   * Load market news from API
-   */
   async function loadNews(forceRefresh = false) {
     try {
       showLoading();
@@ -41,7 +28,6 @@
         ? CONFIG.REFRESH_ENDPOINT 
         : CONFIG.API_ENDPOINT;
 
-      // For force refresh, POST to clear cache first
       if (forceRefresh) {
         await fetch(CONFIG.REFRESH_ENDPOINT, { method: 'POST' });
       }
@@ -67,9 +53,6 @@
     }
   }
 
-  /**
-   * Handle refresh button click
-   */
   async function handleRefresh() {
     refreshBtn.disabled = true;
     refreshBtn.textContent = 'Refreshing...';
@@ -80,9 +63,6 @@
     refreshBtn.textContent = 'Refresh';
   }
 
-  /**
-   * Display news items
-   */
   function displayNews(newsItems) {
     newsList.innerHTML = '';
 
@@ -108,37 +88,24 @@
     });
   }
 
-  /**
-   * Show loading state
-   */
   function showLoading() {
     newsList.innerHTML = '<li class="text-gray-400">Loading news...</li>';
   }
 
-  /**
-   * Show no news message
-   */
   function showNoNews() {
     newsList.innerHTML = '<li class="text-gray-400">No news available at the moment</li>';
   }
 
-  /**
-   * Show error message
-   */
   function showError(message) {
     newsList.innerHTML = `<li class="text-red-600">Error: ${escapeHtml(message)}</li>`;
   }
 
-  /**
-   * Escape HTML to prevent XSS
-   */
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
 
-  // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
