@@ -3,6 +3,7 @@
   --bg-card: #ffffff;
   --text-primary: #111827;
   --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --border-subtle: #d1fae5;
   --neutral-chart: #10b981;
   --color-profit: #047857;
@@ -34,24 +35,25 @@
 }
 
 :root[data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border-subtle: #334155;
-  --neutral-chart: #64748b;
+  --bg-primary: #0a0a0a;
+  --bg-card: #141414;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+  --border-subtle: #262626;
+  --neutral-chart: #737373;
   --color-profit: #22c55e;
   --color-loss: #ef4444;
   --primary-green: #22c55e;
   --primary-green-dark: #16a34a;
   --accent-green: #4ade80;
-  --chart-bg: #0f172a;
-  --sidebar-bg: #1e293b;
-  --button-secondary-bg: #1e293b;
-  --button-secondary-hover: #334155;
+  --chart-bg: #0a0a0a;
+  --sidebar-bg: #141414;
+  --button-secondary-bg: #1a1a1a;
+  --button-secondary-hover: #262626;
   --filter-active-bg: #4ade80;
   --toggle-active-bg: #22c55e;
-  --table-hover: #334155;
+  --table-hover: #1f1f1f;
   --mood-calm-bg: #1e3a8a;
   --mood-calm-text: #93c5fd;
   --mood-fomo-bg: #78350f;
@@ -62,8 +64,8 @@
   --mood-confident-text: #86efac;
   --mood-anxious-bg: #7c2d12;
   --mood-anxious-text: #fdba74;
-  --mood-neutral-bg: #374151;
-  --mood-neutral-text: #d1d5db;
+  --mood-neutral-bg: #404040;
+  --mood-neutral-text: #d4d4d4;
   --status-long-bg: #14532d;
   --status-short-bg: #7f1d1d;
 }
@@ -73,6 +75,7 @@
   --bg-card: #ffffff;
   --text-primary: #111827;
   --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --border-subtle: #d1fae5;
   --neutral-chart: #10b981;
   --color-profit: #047857;
@@ -111,7 +114,18 @@
 
 body {
   background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.font-semibold,
+.font-bold,
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+td, th {
+  color: var(--text-primary);
 }
 
 .sidebar {
