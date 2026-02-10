@@ -9,62 +9,138 @@ const tradeSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: [true, 'Trade date is required'],
+    required: true,
     index: true
   },
   time: {
     type: String,
-    required: [true, 'Trade time is required'],
-    match: [/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Time must be in HH:MM format']
-  },
-  instrument: {
-    type: String,
-    required: [true, 'Instrument is required'],
-    trim: true,
-    uppercase: true
+    required: true
   },
   segment: {
     type: String,
-    required: [true, 'Segment is required'],
-    enum: ['options', 'futures', 'equity'],
+    required: true,
+    enum: ['equity', 'fno', 'options', 'futures'],
     lowercase: true
+  },
+  instrumentType: {
+    type: String,
+    required: true,
+    enum: ['equity', 'futures', 'options'],
+    lowercase: true
+  },
+  instrument: {
+    type: String,
+    required: true,
+    trim: true,
+    uppercase: true
   },
   side: {
     type: String,
-    required: [true, 'Side is required'],
-    enum: ['LONG', 'SHORT'],
+    required: true,
+    enum: ['BUY', 'SELL', 'LONG', 'SHORT'],
     uppercase: true
-  },
-  setup: {
-    type: String,
-    required: [true, 'Setup is required'],
-    enum: ['breakout', 'trend', 'reversal', 'scalp', 'other'],
-    lowercase: true
-  },
-  entryPrice: {
-    type: Number,
-    required: [true, 'Entry price is required'],
-    min: [0, 'Entry price must be positive']
-  },
-  exitPrice: {
-    type: Number,
-    required: [true, 'Exit price is required'],
-    min: [0, 'Exit price must be positive']
   },
   quantity: {
     type: Number,
-    required: [true, 'Quantity is required'],
-    min: [1, 'Quantity must be at least 1']
+    required: true,
+    min: 1
+  },
+  lots: {
+    type: Number,
+    default: 1
+  },
+  entryPrice: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  exitPrice: {
+    type: Number,
+    default: null
   },
   stopLoss: {
     type: Number,
-    default: null,
-    min: [0, 'Stop loss must be positive']
+    default: null
   },
   target: {
     type: Number,
-    default: null,
-    min: [0, 'Target must be positive']
+    default: null
+  },
+  productType: {
+    type: String,
+    enum: ['intraday', 'delivery', 'mis', 'nrml', 'cnc'],
+    default: 'intraday'
+  },
+  expiryDate: {
+    type: Date,
+    default: null
+  },
+  strikePrice: {
+    type: Number,
+    default: null
+  },
+  optionType: {
+    type: String,
+    enum: ['CE', 'PE', null],
+    default: null
+  },
+  status: {
+    type: String,
+    enum: ['OPEN', 'CLOSED'],
+    default: 'CLOSED'
+  },
+  strategy: {
+    type: String,
+    default: null
+  },
+  setup: {
+    type: String,
+    enum: ['breakout', 'trend', 'reversal', 'scalp', 'other'],
+    default: 'other'
+  },
+  setupTags: {
+    type: [String],
+    default: []
+  },
+  timeframe: {
+    type: String,
+    default: null
+  },
+  riskTaken: {
+    type: Number,
+    default: null
+  },
+  convictionScore: {
+    type: Number,
+    min: 1,
+    max: 5,
+    default: null
+  },
+  tags: {
+    type: [String],
+    default: []
+  },
+  emotionalState: {
+    type: [String],
+    enum: ['calm', 'fomo', 'revenge', 'anxious', 'confident', 'neutral'],
+    default: []
+  },
+  mood: {
+    type: String,
+    enum: ['calm', 'fomo', 'revenge', 'anxious', 'confident', 'neutral'],
+    default: 'neutral'
+  },
+  preTradeNotes: {
+    type: String,
+    default: null
+  },
+  postTradeNotes: {
+    type: String,
+    default: null
+  },
+  notes: {
+    type: String,
+    default: null
   },
   pnl: {
     type: Number,
@@ -74,24 +150,9 @@ const tradeSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  mood: {
-    type: String,
-    required: [true, 'Mood is required'],
-    enum: ['calm', 'fomo', 'revenge', 'anxious', 'confident', 'neutral'],
-    lowercase: true
-  },
-  notes: {
-    type: String,
-    trim: true,
-    maxlength: [500, 'Notes cannot exceed 500 characters']
-  },
   followedPlan: {
     type: Boolean,
     default: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
 }, {
   timestamps: true
@@ -100,13 +161,25 @@ const tradeSchema = new mongoose.Schema({
 tradeSchema.index({ userId: 1, date: -1 });
 tradeSchema.index({ userId: 1, createdAt: -1 });
 tradeSchema.index({ userId: 1, segment: 1 });
+tradeSchema.index({ userId: 1, status: 1 });
 
 tradeSchema.pre('save', function(next) {
-  const priceDiff = this.exitPrice - this.entryPrice;
-  const multiplier = this.side === 'LONG' ? 1 : -1;
-  this.pnl = parseFloat((priceDiff * multiplier * this.quantity).toFixed(2));
+  if (this.exitPrice && this.status === 'CLOSED') {
+    let priceDiff;
+    const normalizedSide = this.side.toUpperCase();
+    
+    if (normalizedSide === 'BUY' || normalizedSide === 'LONG') {
+      priceDiff = this.exitPrice - this.entryPrice;
+    } else {
+      priceDiff = this.entryPrice - this.exitPrice;
+    }
+    
+    this.pnl = parseFloat((priceDiff * this.quantity).toFixed(2));
+  } else {
+    this.pnl = 0;
+  }
   
-  if (this.stopLoss && this.target) {
+  if (this.stopLoss && this.target && this.entryPrice) {
     const risk = Math.abs(this.entryPrice - this.stopLoss);
     const reward = Math.abs(this.target - this.entryPrice);
     this.rrRatio = risk > 0 ? parseFloat((reward / risk).toFixed(2)) : 0;
@@ -116,6 +189,7 @@ tradeSchema.pre('save', function(next) {
 });
 
 tradeSchema.virtual('outcome').get(function() {
+  if (this.status !== 'CLOSED') return 'open';
   return this.pnl > 0 ? 'win' : this.pnl < 0 ? 'loss' : 'breakeven';
 });
 

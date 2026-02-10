@@ -41,9 +41,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} - server.js:41`);
-  console.log(`📂 Frontend: http://localhost:${PORT} - server.js:42`);
-  console.log(`🔌 API: http://localhost:${PORT}/api - server.js:43`);
+  
 });
 
 module.exports = app;

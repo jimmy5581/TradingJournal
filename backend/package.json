@@ -26,8 +26,7 @@
     "moment": "^2.29.4",
     "mongoose": "^7.6.3",
     "multer": "^2.0.2",
-    "sharp": "^0.34.5",
-    "tesseract.js": "^7.0.0"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

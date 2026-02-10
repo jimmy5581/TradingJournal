@@ -6,7 +6,7 @@ exports.getSummary = async (req, res, next) => {
     const userId = req.userId;
     const { month, year } = req.query;
 
-    const filter = { userId };
+    const filter = { userId, status: 'CLOSED' };
 
     if (month && year) {
       const startDate = moment(`${year}-${month}-01`).startOf('month').toDate();
@@ -14,7 +14,7 @@ exports.getSummary = async (req, res, next) => {
       filter.date = { $gte: startDate, $lte: endDate };
     }
 
-    const trades = await Trade.find(filter);
+    const trades = await Trade.find(filter).sort({ date: 1 });
 
     if (trades.length === 0) {
       return res.status(200).json({
@@ -26,9 +26,13 @@ exports.getSummary = async (req, res, next) => {
           winRate: 0,
           netPnl: 0,
           avgPnl: 0,
+          avgWinningTrade: 0,
+          avgLosingTrade: 0,
           avgRR: 0,
           bestTrade: 0,
           worstTrade: 0,
+          bestDay: { date: null, pnl: 0 },
+          worstDay: { date: null, pnl: 0 },
           maxDrawdown: 0,
           profitFactor: 0
         }
@@ -41,29 +45,64 @@ exports.getSummary = async (req, res, next) => {
     
     const winCount = winningTrades.length;
     const lossCount = losingTrades.length;
-    const winRate = ((winCount / totalTrades) * 100).toFixed(2);
+    const winRate = totalTrades > 0 ? ((winCount / totalTrades) * 100).toFixed(2) : 0;
 
     const netPnl = trades.reduce((sum, t) => sum + t.pnl, 0);
-    const avgPnl = netPnl / totalTrades;
+    const avgPnl = totalTrades > 0 ? netPnl / totalTrades : 0;
+
+    const avgWinningTrade = winCount > 0 
+      ? winningTrades.reduce((sum, t) => sum + t.pnl, 0) / winCount 
+      : 0;
+    
+    const avgLosingTrade = lossCount > 0 
+      ? losingTrades.reduce((sum, t) => sum + t.pnl, 0) / lossCount 
+      : 0;
 
     const totalGains = winningTrades.reduce((sum, t) => sum + t.pnl, 0);
     const totalLosses = Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0));
-    const profitFactor = totalLosses > 0 ? (totalGains / totalLosses).toFixed(2) : 0;
+    const profitFactor = totalLosses > 0 ? totalGains / totalLosses : 0;
 
     const tradesWithRR = trades.filter(t => t.rrRatio > 0);
     const avgRR = tradesWithRR.length > 0 
-      ? (tradesWithRR.reduce((sum, t) => sum + t.rrRatio, 0) / tradesWithRR.length).toFixed(2)
+      ? tradesWithRR.reduce((sum, t) => sum + t.rrRatio, 0) / tradesWithRR.length
       : 0;
 
     const bestTrade = trades.reduce((max, t) => t.pnl > max ? t.pnl : max, trades[0].pnl);
     const worstTrade = trades.reduce((min, t) => t.pnl < min ? t.pnl : min, trades[0].pnl);
 
-    const sortedByDate = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const dailyPnl = {};
+    trades.forEach(trade => {
+      const dateKey = moment(trade.date).format('YYYY-MM-DD');
+      if (!dailyPnl[dateKey]) {
+        dailyPnl[dateKey] = 0;
+      }
+      dailyPnl[dateKey] += trade.pnl;
+    });
+
+    let bestDay = { date: null, pnl: Number.NEGATIVE_INFINITY };
+    let worstDay = { date: null, pnl: Number.POSITIVE_INFINITY };
+    
+    Object.entries(dailyPnl).forEach(([date, pnl]) => {
+      if (pnl > bestDay.pnl) {
+        bestDay = { date, pnl };
+      }
+      if (pnl < worstDay.pnl) {
+        worstDay = { date, pnl };
+      }
+    });
+
+    if (bestDay.pnl === Number.NEGATIVE_INFINITY) {
+      bestDay = { date: null, pnl: 0 };
+    }
+    if (worstDay.pnl === Number.POSITIVE_INFINITY) {
+      worstDay = { date: null, pnl: 0 };
+    }
+
     let peak = 0;
     let maxDrawdown = 0;
     let runningPnl = 0;
 
-    sortedByDate.forEach(trade => {
+    trades.forEach(trade => {
       runningPnl += trade.pnl;
       if (runningPnl > peak) {
         peak = runningPnl;
@@ -83,11 +122,21 @@ exports.getSummary = async (req, res, next) => {
         winRate: parseFloat(winRate),
         netPnl: parseFloat(netPnl.toFixed(2)),
         avgPnl: parseFloat(avgPnl.toFixed(2)),
-        avgRR: parseFloat(avgRR),
+        avgWinningTrade: parseFloat(avgWinningTrade.toFixed(2)),
+        avgLosingTrade: parseFloat(avgLosingTrade.toFixed(2)),
+        avgRR: parseFloat(avgRR.toFixed(2)),
         bestTrade: parseFloat(bestTrade.toFixed(2)),
         worstTrade: parseFloat(worstTrade.toFixed(2)),
+        bestDay: {
+          date: bestDay.date,
+          pnl: parseFloat(bestDay.pnl.toFixed(2))
+        },
+        worstDay: {
+          date: worstDay.date,
+          pnl: parseFloat(worstDay.pnl.toFixed(2))
+        },
         maxDrawdown: parseFloat(maxDrawdown.toFixed(2)),
-        profitFactor: parseFloat(profitFactor)
+        profitFactor: parseFloat(profitFactor.toFixed(2))
       }
     });
   } catch (error) {
@@ -103,6 +152,7 @@ exports.getBehaviorAnalysis = async (req, res, next) => {
     const startDate = moment().subtract(days, 'days').startOf('day').toDate();
     const trades = await Trade.find({
       userId,
+      status: 'CLOSED',
       date: { $gte: startDate }
     }).sort({ date: 1, time: 1 });
 
@@ -120,7 +170,7 @@ exports.getBehaviorAnalysis = async (req, res, next) => {
     });
 
     const overtradingDays = [];
-    const dailyTradeLimit = req.user.dailyTradeLimit;
+    const dailyTradeLimit = req.user?.dailyTradeLimit || 10;
     
     Object.entries(tradesByDay).forEach(([date, dayTrades]) => {
       if (dayTrades.length > dailyTradeLimit) {
@@ -246,7 +296,7 @@ exports.getEquityCurve = async (req, res, next) => {
 
     const filter = {
       userId,
-      exitPrice: { $ne: null, $exists: true }
+      status: 'CLOSED'
     };
     
     if (Object.keys(dateFilter).length > 0) {
@@ -255,25 +305,18 @@ exports.getEquityCurve = async (req, res, next) => {
 
     const trades = await Trade.find(filter)
       .sort({ date: 1, time: 1 })
-      .select('date side entryPrice exitPrice quantity');
+      .select('date pnl');
 
     let cumulativePnL = 0;
     const dailyPnL = {};
 
     trades.forEach(trade => {
-      let pnl;
-      if (trade.side === 'LONG') {
-        pnl = (trade.exitPrice - trade.entryPrice) * trade.quantity;
-      } else {
-        pnl = (trade.entryPrice - trade.exitPrice) * trade.quantity;
-      }
-
       const dateKey = moment(trade.date).format('YYYY-MM-DD');
       
       if (!dailyPnL[dateKey]) {
         dailyPnL[dateKey] = 0;
       }
-      dailyPnL[dateKey] += pnl;
+      dailyPnL[dateKey] += trade.pnl;
     });
 
     const data = Object.entries(dailyPnL)

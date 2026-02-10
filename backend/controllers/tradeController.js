@@ -15,10 +15,12 @@ exports.createTrade = async (req, res, next) => {
       date: { $gte: todayStart, $lte: todayEnd }
     });
 
-    if (todayTradeCount >= req.user.dailyTradeLimit) {
+    const dailyLimit = req.user?.dailyTradeLimit || 10;
+
+    if (todayTradeCount >= dailyLimit) {
       return res.status(400).json({
         success: false,
-        message: `Daily trade limit exceeded. Maximum ${req.user.dailyTradeLimit} trades per day allowed.`,
+        message: `Daily trade limit exceeded. Maximum ${dailyLimit} trades per day allowed.`,
         currentCount: todayTradeCount
       });
     }
@@ -31,6 +33,13 @@ exports.createTrade = async (req, res, next) => {
       data: { trade }
     });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(e => e.message).join(', ');
+      return res.status(400).json({
+        success: false,
+        message: `Validation failed: ${errors}`
+      });
+    }
     next(error);
   }
 };
@@ -38,7 +47,7 @@ exports.createTrade = async (req, res, next) => {
 exports.getAllTrades = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const { month, year, setup, mood, page = 1, limit = 50 } = req.query;
+    const { month, year, setup, mood, status, segment, side, page = 1, limit = 50 } = req.query;
 
     const filter = { userId };
 
@@ -54,6 +63,18 @@ exports.getAllTrades = async (req, res, next) => {
 
     if (mood) {
       filter.mood = mood.toLowerCase();
+    }
+
+    if (status) {
+      filter.status = status.toUpperCase();
+    }
+
+    if (segment) {
+      filter.segment = segment.toLowerCase();
+    }
+
+    if (side) {
+      filter.side = side.toUpperCase();
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);

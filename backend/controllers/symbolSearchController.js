@@ -13,14 +13,13 @@ exports.searchSymbols = async (req, res) => {
 
     const apiKey = process.env.TWELVEDATA_API_KEY;
     if (!apiKey) {
-      console.error('❌ TWELVEDATA_API_KEY not found in environment variables - symbolSearchController.js:22');
       return res.status(500).json({
         success: false,
         error: 'Search service configuration error'
       });
     }
 
-    console.log(`🔍 Searching Twelve Data for: "${q}" - symbolSearchController.js:29`);
+    console.log(`🔍 Searching Twelve Data for: "${q}" - symbolSearchController.js:23`);
 
     const twelveDataUrl = `https://api.twelvedata.com/symbol_search?symbol=${encodeURIComponent(q)}&apikey=${apiKey}`;
 
@@ -34,7 +33,7 @@ exports.searchSymbols = async (req, res) => {
       apiResponse.on('end', () => {
         try {
           if (apiResponse.statusCode === 401) {
-            console.error('Twelve Data API: Invalid API key - symbolSearchController.js:45');
+            console.error('Twelve Data API: Invalid API key - symbolSearchController.js:37');
             return res.status(500).json({
               success: false,
               error: 'Search service configuration error. Please check API key.'
@@ -42,7 +41,7 @@ exports.searchSymbols = async (req, res) => {
           }
 
           if (apiResponse.statusCode === 429) {
-            console.error('Twelve Data API: Rate limit exceeded - symbolSearchController.js:53');
+            console.error('Twelve Data API: Rate limit exceeded - symbolSearchController.js:45');
             return res.status(429).json({
               success: false,
               error: 'Rate limit exceeded. Please try again later.'
@@ -50,7 +49,7 @@ exports.searchSymbols = async (req, res) => {
           }
 
           if (apiResponse.statusCode !== 200) {
-            console.error('Twelve Data API error: - symbolSearchController.js:61', apiResponse.statusCode, data);
+            console.error('Twelve Data API error: - symbolSearchController.js:53', apiResponse.statusCode, data);
             return res.status(500).json({
               success: false,
               error: 'Search service temporarily unavailable'
@@ -60,7 +59,7 @@ exports.searchSymbols = async (req, res) => {
           const result = JSON.parse(data);
 
           if (result.status === 'error') {
-            console.error('Twelve Data API error: - symbolSearchController.js:72', result.message);
+
             return res.status(500).json({
               success: false,
               error: result.message || 'Search service error'
@@ -75,7 +74,7 @@ exports.searchSymbols = async (req, res) => {
               type: item.instrument_type || item.type || 'Stock'
             }));
 
-          console.log(`✅ Found ${symbols.length} symbols for "${q}" - symbolSearchController.js:88`);
+          console.log(`✅ Found ${symbols.length} symbols for "${q}" - symbolSearchController.js:78`);
 
           res.json({
             success: true,
@@ -84,7 +83,7 @@ exports.searchSymbols = async (req, res) => {
           });
 
         } catch (parseError) {
-          console.error('Error parsing Twelve Data response: - symbolSearchController.js:97', parseError);
+          console.error('Error parsing Twelve Data response: - symbolSearchController.js:87', parseError);
           res.status(500).json({
             success: false,
             error: 'Error processing search results'
@@ -93,7 +92,7 @@ exports.searchSymbols = async (req, res) => {
       });
 
     }).on('error', (error) => {
-      console.error('Twelve Data API request error: - symbolSearchController.js:106', error);
+      console.error('Twelve Data API request error: - symbolSearchController.js:96', error);
       res.status(500).json({
         success: false,
         error: 'Search service temporarily unavailable'
@@ -101,7 +100,7 @@ exports.searchSymbols = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Symbol search error: - symbolSearchController.js:114', error);
+    console.error('Symbol search error: - symbolSearchController.js:104', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

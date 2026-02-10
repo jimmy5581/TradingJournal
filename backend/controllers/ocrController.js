@@ -1,4 +1,4 @@
-const Tesseract = require('tesseract.js');
+const { spawn } = require('child_process');
 const sharp = require('sharp');
 const fs = require('fs').promises;
 const path = require('path');
@@ -26,23 +26,64 @@ async function preprocessImage(inputPath, outputPath) {
 }
 
 async function extractTextFromImage(imagePath) {
-  try {
-    const { data: { text } } = await Tesseract.recognize(
-      imagePath,
-      'eng',
-      {
-        logger: info => {
-          if (info.status === 'recognizing text') {
-            console.log(`OCR Progress: ${Math.round(info.progress * 100)}%`);
+  return new Promise((resolve, reject) => {
+    // Use Python from PATH - will use activated environment if available
+    const pythonExecutable = process.platform === 'win32' ? 'python' : 'python3';
+    
+    const pythonScript = `
+import sys
+import os
+os.environ['PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK'] = 'True'
+from paddleocr import PaddleOCR
+import json
+
+try:
+    ocr = PaddleOCR(use_angle_cls=True, lang='en', show_log=False)
+    result = ocr.ocr('${imagePath.replace(/\\/g, '/')}', cls=True)
+    
+    if result and result[0]:
+        text_lines = [line[1][0] for line in result[0]]
+        print(json.dumps({'text': ' '.join(text_lines)}))
+    else:
+        print(json.dumps({'text': ''}))
+except Exception as e:
+    print(json.dumps({'error': str(e)}), file=sys.stderr)
+    sys.exit(1)
+`;
+
+    const python = spawn(pythonExecutable, ['-c', pythonScript]);
+    let output = '';
+    let errorOutput = '';
+
+    python.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    python.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    python.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`PaddleOCR failed: ${errorOutput}`));
+      } else {
+        try {
+          const result = JSON.parse(output);
+          if (result.error) {
+            reject(new Error(result.error));
+          } else {
+            resolve(result.text);
           }
+        } catch (e) {
+          reject(new Error(`Failed to parse OCR output: ${e.message}`));
         }
       }
-    );
-    
-    return text;
-  } catch (error) {
-    throw new Error(`OCR extraction failed: ${error.message}`);
-  }
+    });
+
+    python.on('error', (error) => {
+      reject(new Error(`Failed to start Python: ${error.message}. Ensure Python and PaddleOCR are installed.`));
+    });
+  });
 }
 
 function parseTradeDetails(ocrText) {
@@ -52,6 +93,8 @@ function parseTradeDetails(ocrText) {
     entryPrice: null,
     exitPrice: null,
     quantity: null,
+    stopLoss: null,
+    target: null,
     timestamp: null,
     rawText: ocrText
   };
@@ -62,8 +105,8 @@ function parseTradeDetails(ocrText) {
   const sideMatch = text.match(/\b(BUY|SELL|LONG|SHORT|BOUGHT|SOLD)\b/i);
   if (sideMatch) {
     const side = sideMatch[1].toUpperCase();
-    extracted.side = ['BOUGHT', 'LONG'].includes(side) ? 'LONG' : 
-                     ['SOLD', 'SHORT'].includes(side) ? 'SHORT' : side;
+    extracted.side = ['BOUGHT', 'LONG', 'BUY'].includes(side) ? 'LONG' : 
+                     ['SOLD', 'SHORT', 'SELL'].includes(side) ? 'SHORT' : side;
   }
 
   const symbolPatterns = [
@@ -125,6 +168,30 @@ function parseTradeDetails(ocrText) {
     }
   }
 
+  const stopLossPatterns = [
+    /(?:STOP\s*LOSS|SL|STOPLOSS)\s*[:\-]?\s*₹?\s*([\d,]+\.?\d*)/,
+  ];
+
+  for (const pattern of stopLossPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      extracted.stopLoss = parseFloat(match[1].replace(/,/g, ''));
+      break;
+    }
+  }
+
+  const targetPatterns = [
+    /(?:TARGET|TGT|TP)\s*[:\-]?\s*₹?\s*([\d,]+\.?\d*)/,
+  ];
+
+  for (const pattern of targetPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      extracted.target = parseFloat(match[1].replace(/,/g, ''));
+      break;
+    }
+  }
+
   const timestampPatterns = [
     /(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AP]M)?)/i,
     /(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/,
@@ -146,9 +213,8 @@ async function cleanupFiles(...filePaths) {
   for (const filePath of filePaths) {
     try {
       await fs.unlink(filePath);
-      console.log(`Deleted temporary file: ${filePath}`);
     } catch (error) {
-      console.error(`Failed to delete ${filePath}:`, error.message);
+      
     }
   }
 }
@@ -187,19 +253,9 @@ exports.scanTrade = async (req, res) => {
       `processed_${Date.now()}.png`
     );
 
-    console.log('📸 Processing trade screenshot...');
-    console.log(`   Original: ${originalPath}`);
-    console.log(`   Size: ${(req.file.size / 1024).toFixed(2)} KB`);
-
-    console.log('🔧 Preprocessing image...');
     await preprocessImage(originalPath, processedPath);
 
-    console.log('🔍 Running OCR...');
     const extractedText = await extractTextFromImage(processedPath);
-    console.log('✅ OCR completed');
-    console.log('📄 Extracted text length:', extractedText.length, 'characters');
-
-    console.log('🔎 Parsing trade details...');
     const tradeDetails = parseTradeDetails(extractedText);
 
     await cleanupFiles(originalPath, processedPath);
@@ -213,8 +269,8 @@ exports.scanTrade = async (req, res) => {
           side: tradeDetails.side,
           entryPrice: tradeDetails.entryPrice,
           exitPrice: tradeDetails.exitPrice,
-          quantity: tradeDetails.quantity,
-          timestamp: tradeDetails.timestamp
+          quantity: tradeDetails.quantity,          stopLoss: tradeDetails.stopLoss,
+          target: tradeDetails.target,          timestamp: tradeDetails.timestamp
         },
         metadata: {
           ocrTextLength: extractedText.length,
@@ -225,7 +281,6 @@ exports.scanTrade = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ OCR Error:', error);
 
     if (originalPath || processedPath) {
       await cleanupFiles(originalPath, processedPath);
@@ -241,16 +296,53 @@ exports.scanTrade = async (req, res) => {
 
 exports.healthCheck = async (req, res) => {
   try {
-    const testText = await Tesseract.recognize(
-      Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'),
-      'eng'
-    );
+    // Quick health check - just verify PaddleOCR can be imported
+    const pythonExecutable = process.platform === 'win32' ? 'python' : 'python3';
+    const testScript = `
+import sys
+import json
+try:
+    from paddleocr import PaddleOCR
+    print(json.dumps({'status': 'operational'}))
+except ImportError as e:
+    print(json.dumps({'status': 'failed', 'error': str(e)}))
+    sys.exit(1)
+`;
 
-    res.json({
-      success: true,
-      message: 'OCR service is healthy',
-      tesseract: 'operational',
-      sharp: 'operational'
+    return new Promise((resolve, reject) => {
+      const python = spawn(pythonExecutable, ['-c', testScript]);
+      let output = '';
+
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.on('close', (code) => {
+        if (code !== 0) {
+          res.status(503).json({
+            success: false,
+            error: 'PaddleOCR not available',
+            details: 'Please install: pip install paddleocr paddlepaddle'
+          });
+        } else {
+          res.json({
+            success: true,
+            message: 'OCR service is healthy',
+            paddleocr: 'operational',
+            sharp: 'operational'
+          });
+        }
+        resolve();
+      });
+
+      python.on('error', (error) => {
+        res.status(503).json({
+          success: false,
+          error: 'Python not available',
+          details: error.message
+        });
+        resolve();
+      });
     });
   } catch (error) {
     res.status(503).json({

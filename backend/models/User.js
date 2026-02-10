@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  twoFactorEnabled: {
+    type: Boolean,
+    default: false
+  },
   dailyTradeLimit: {
     type: Number,
     default: 5,

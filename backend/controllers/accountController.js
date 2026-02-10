@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// Multer configuration for avatar upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, '../uploads/avatars');
@@ -21,7 +22,7 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     if (extname && mimetype) {
@@ -32,7 +33,8 @@ const upload = multer({
   }
 });
 
-exports.getProfile = async (req, res) => {
+// GET /api/account - Fetch logged-in user account details
+exports.getAccount = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
     
@@ -46,30 +48,30 @@ exports.getProfile = async (req, res) => {
     res.json({
       success: true,
       data: {
+        _id: user._id,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email,
         phone: user.phone || '',
-        country: user.country || '',
-        timezone: user.timezone || '',
         avatarUrl: user.avatarUrl || '',
+        twoFactorEnabled: user.twoFactorEnabled || false,
         role: user.role || 'Trader',
-        location: user.location || '',
-        joinedAt: user.createdAt
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch profile'
+      message: 'Failed to fetch account details'
     });
   }
 };
 
-exports.updateProfile = async (req, res) => {
-  try {
-    const { firstName, lastName, phone, country, timezone, location } = req.body;
 
+exports.updateAccount = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone } = req.body;
+    
     const user = await User.findById(req.userId);
     
     if (!user) {
@@ -79,40 +81,99 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
+    let emailChanged = false;
+
+    // Check if email is being changed
+    if (email && email !== user.email) {
+      // Validate email format
+      const emailRegex = /^\S+@\S+\.\S+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+
+      // Check for duplicate email
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already in use'
+        });
+      }
+
+      user.email = email.toLowerCase();
+      emailChanged = true;
+    }
+
+    // Update other fields
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
     if (phone !== undefined) user.phone = phone;
-    if (country !== undefined) user.country = country;
-    if (timezone !== undefined) user.timezone = timezone;
-    if (location !== undefined) user.location = location;
 
     await user.save();
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
+      message: 'Account updated successfully',
+      emailChanged,
       data: {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email,
-        phone: user.phone || '',
-        country: user.country || '',
-        timezone: user.timezone || '',
-        avatarUrl: user.avatarUrl || '',
-        role: user.role || 'Trader',
-        location: user.location || '',
-        joinedAt: user.createdAt
+        phone: user.phone || ''
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update profile'
+      message: 'Failed to update account'
     });
   }
 };
 
-exports.updateAvatar = async (req, res) => {
+
+exports.toggle2FA = async (req, res) => {
+  try {
+    const { enabled } = req.body;
+
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'enabled field must be a boolean'
+      });
+    }
+
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    user.twoFactorEnabled = enabled;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `Two-factor authentication ${enabled ? 'enabled' : 'disabled'}`,
+      data: {
+        twoFactorEnabled: user.twoFactorEnabled
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update 2FA settings'
+    });
+  }
+};
+
+// POST /api/account/avatar - Upload and store profile picture
+exports.uploadAvatar = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -130,6 +191,7 @@ exports.updateAvatar = async (req, res) => {
       });
     }
 
+    // Delete old avatar if exists
     if (user.avatarUrl) {
       const oldAvatarPath = path.join(__dirname, '../uploads/avatars', path.basename(user.avatarUrl));
       if (fs.existsSync(oldAvatarPath)) {
@@ -143,7 +205,7 @@ exports.updateAvatar = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Avatar updated successfully',
+      message: 'Avatar uploaded successfully',
       data: {
         avatarUrl
       }
@@ -151,7 +213,7 @@ exports.updateAvatar = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to update avatar'
+      message: 'Failed to upload avatar'
     });
   }
 };
