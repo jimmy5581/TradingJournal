@@ -9,6 +9,14 @@ const userSchema = new mongoose.Schema({
     minlength: [2, 'Name must be at least 2 characters'],
     maxlength: [50, 'Name cannot exceed 50 characters']
   },
+  firstName: {
+    type: String,
+    trim: true
+  },
+  lastName: {
+    type: String,
+    trim: true
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -22,6 +30,30 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
+  },
+  phone: {
+    type: String,
+    trim: true
+  },
+  country: {
+    type: String,
+    trim: true
+  },
+  timezone: {
+    type: String,
+    trim: true
+  },
+  avatarUrl: {
+    type: String,
+    trim: true
+  },
+  role: {
+    type: String,
+    default: 'Trader'
+  },
+  location: {
+    type: String,
+    trim: true
   },
   dailyTradeLimit: {
     type: Number,

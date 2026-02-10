@@ -11,6 +11,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const symbolSearchRoutes = require('./routes/symbolSearchRoutes');
 const marketNewsRoutes = require('./routes/marketNewsRoutes');
 const ocrRoutes = require('./routes/ocrRoutes');
+const accountRoutes = require('./routes/accountRoutes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/trades', tradeRoutes);
@@ -28,6 +30,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/symbol-search', symbolSearchRoutes);
 app.use('/api/market-news', marketNewsRoutes);
 app.use('/api/ocr', ocrRoutes);
+app.use('/api/account', accountRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
@@ -38,9 +41,9 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📂 Frontend: http://localhost:${PORT}`);
-  console.log(`🔌 API: http://localhost:${PORT}/api`);
+  console.log(`🚀 Server running on port ${PORT} - server.js:41`);
+  console.log(`📂 Frontend: http://localhost:${PORT} - server.js:42`);
+  console.log(`🔌 API: http://localhost:${PORT}/api - server.js:43`);
 });
 
 module.exports = app;

@@ -190,6 +190,8 @@ const showNotification = (message, type = 'success') => {
 };
 
 window.API = {
+  API_BASE_URL,
+  apiCall,
   Auth: AuthAPI,
   Trade: TradeAPI,
   Analytics: AnalyticsAPI,

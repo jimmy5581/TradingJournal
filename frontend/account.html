@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>TradeVault – Account</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .account-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .account-card {
+      width: 100%;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="account-container">
+  <div class="account-card card p-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold" style="color: var(--text-primary);">Account</h1>
+      <button id="themeToggle" class="theme-toggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex flex-col items-center mb-8 pb-8" style="border-bottom: 1px solid var(--border-subtle);">
+      <div class="relative mb-4">
+        <img id="avatarPreview" src="" alt="Avatar" class="w-24 h-24 rounded-full" style="background-color: var(--accent-green); object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div id="avatarPlaceholder" class="w-24 h-24 rounded-full flex items-center justify-center" style="background-color: var(--accent-green); display: none;">
+          <span class="text-white text-2xl font-bold" id="avatarInitials">-</span>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold mb-1" style="color: var(--text-primary);" id="userName">User Name</h2>
+      <p class="text-sm" style="color: var(--text-secondary);" id="userEmail">user@example.com</p>
+      <button id="changeAvatarBtn" class="btn-secondary mt-3">Change Profile Picture</button>
+      <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+    </div>
+
+    <form id="accountForm" class="space-y-6">
+      <div>
+        <h3 class="text-sm font-semibold mb-4" style="color: var(--text-primary);">Contact Information</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">First Name</label>
+            <input type="text" id="firstName" class="w-full" placeholder="Enter first name">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Last Name</label>
+            <input type="text" id="lastName" class="w-full" placeholder="Enter last name">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Email</label>
+            <input type="email" id="email" class="w-full" disabled style="opacity: 0.6; cursor: not-allowed;">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Phone</label>
+            <input type="tel" id="phone" class="w-full" placeholder="Enter phone number">
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4" style="border-top: 1px solid var(--border-subtle);">
+        <h3 class="text-sm font-semibold mb-4" style="color: var(--text-primary);">Security</h3>
+        <div class="flex items-center justify-between p-4 rounded" style="background-color: var(--button-secondary-hover);">
+          <div>
+            <p class="text-sm font-medium" style="color: var(--text-primary);">Two-Factor Authentication</p>
+            <p class="text-xs mt-1" style="color: var(--text-secondary);">Add an extra layer of security</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="twoFactorToggle" class="sr-only peer">
+            <div class="w-11 h-6 rounded-full peer peer-focus:ring-2 peer-focus:ring-offset-2" style="background-color: var(--border-subtle); transition: all 0.2s;">
+              <div class="dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform" style="transform: translateX(0);"></div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <input type="hidden" id="country" value="">
+      <input type="hidden" id="timezone" value="">
+      <input type="hidden" id="location" value="">
+      <input type="hidden" id="role" value="">
+      <input type="hidden" id="joinedAt" value="">
+
+      <div class="flex justify-between items-center pt-4" style="border-top: 1px solid var(--border-subtle);">
+        <a href="index.html" class="text-sm" style="color: var(--text-secondary); text-decoration: none;">← Back to Dashboard</a>
+        <button type="submit" id="saveBtn" class="btn-primary">
+          <span id="saveBtnText">Save Changes</span>
+          <span id="saveBtnLoading" style="display: none;">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/account.js"></script>
+</body>
+</html>

@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log New Trade - Trading Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.7/dist/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="css/log-trade.css">
 </head>
 <body>
@@ -11,49 +15,36 @@
         <header class="page-header">
             <h1 class="page-title">Log new trade</h1>
             <div class="header-actions">
-                <button type="button" id="themeToggle" class="theme-toggle" title="Toggle theme" style="width: auto; height: auto; padding: 0.625rem 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
+                <button type="button" id="themeToggle" class="btn btn-icon-only" title="Toggle theme">
+                    <iconify-icon icon="lucide:moon" style="font-size: 16px"></iconify-icon>
                 </button>
-                <button type="button" class="btn btn-secondary" id="saveDraftBtn">Save draft</button>
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveCloseBtn">Save & close</button>
             </div>
         </header>
 
-        <section class="ocr-import-card">
-            <h2 class="card-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
+        <section class="form-card upload-section">
+            <div class="ocr-header">
+                <iconify-icon icon="lucide:scan-text" style="font-size: 20px"></iconify-icon>
                 Import Trade from Screenshot (OCR)
-            </h2>
-            <p class="ocr-hint">Upload a trade screenshot to automatically extract and fill trade details. Review all fields before saving.</p>
-            
-            <div class="ocr-upload-section">
-                <div class="ocr-file-input-wrapper">
-                    <input type="file" id="ocrImageInput" accept="image/png,image/jpeg,image/jpg,image/webp" class="ocr-file-input">
-                    <label for="ocrImageInput" class="ocr-file-label">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
+            </div>
+            <div class="ocr-desc">
+                Upload a trade screenshot to automatically extract and fill trade details. Review all fields before saving.
+            </div>
+            <div class="form-group" style="display: flex; gap: 12px; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <input type="file" id="ocrImageInput" accept="image/png,image/jpeg,image/jpg,image/webp" class="file-input">
+                    <label for="ocrImageInput" class="file-label upload-field">
+                        <iconify-icon icon="lucide:upload" style="font-size: 16px; margin-right: 8px"></iconify-icon>
                         <span id="ocrFileName">Choose screenshot...</span>
                     </label>
                 </div>
-                
-                <button type="button" class="btn btn-ocr" id="ocrFillBtn" disabled>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Auto-fill from image
+                <button type="button" id="ocrAutofillBtn" class="btn btn-primary" style="height: 40px; padding: 0 20px; white-space: nowrap;" disabled>
+                    <iconify-icon icon="lucide:scan-text" style="font-size: 16px; margin-right: 6px"></iconify-icon>
+                    Autofill
                 </button>
             </div>
-            
-            <div id="ocrStatus" class="ocr-status" style="display: none;"></div>
+            <div id="ocrStatus" class="ocr-status" style="display: none; margin-top: 8px;"></div>
         </section>
 
         <form id="tradeForm">
@@ -61,262 +52,314 @@
                 <h2 class="card-title">Trade Details</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="tradeDate">Date & Time (IST)</label>
-                        <input type="datetime-local" id="tradeDate" name="tradeDate" required>
+                        <label class="label">Date & Time (IST)</label>
+                        <div class="input-wrapper">
+                            <input type="datetime-local" id="tradeDate" name="tradeDate" class="text-input" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="segment">Segment</label>
-                        <select id="segment" name="segment" required>
-                            <option value="">Select segment</option>
-                            <option value="nse_cash">NSE Cash</option>
-                            <option value="bse_cash">BSE Cash</option>
-                            <option value="index_fno">Index F&O</option>
-                        </select>
+                        <label class="label">Segment</label>
+                        <div class="input-wrapper">
+                            <select id="segment" name="segment" class="text-input" required>
+                                <option value="">Select segment</option>
+                                <option value="nse_cash">NSE Cash</option>
+                                <option value="bse_cash">BSE Cash</option>
+                                <option value="index_fno">Index F&O</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="instrumentType">Instrument Type</label>
-                        <select id="instrumentType" name="instrumentType" required>
-                            <option value="">Select type</option>
-                            <option value="equity">Equity</option>
-                            <option value="futures">Futures</option>
-                            <option value="options">Options</option>
-                        </select>
+                        <label class="label">Instrument Type</label>
+                        <div class="input-wrapper">
+                            <select id="instrumentType" name="instrumentType" class="text-input" required>
+                                <option value="">Select type</option>
+                                <option value="equity">Equity</option>
+                                <option value="futures">Futures</option>
+                                <option value="options">Options</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="symbol">Symbol</label>
-                        <input type="text" id="symbol" name="symbol" placeholder="Search symbol (e.g., RELIANCE, NIFTY)" required>
+                        <label class="label">Symbol</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="symbol" name="symbol" class="text-input" placeholder="Search symbol (e.g., RELIANCE, NIFTY)" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="side">Side</label>
-                        <select id="side" name="side" required>
-                            <option value="">Select side</option>
-                            <option value="long">Long</option>
-                            <option value="short">Short</option>
-                        </select>
+                        <label class="label">Side</label>
+                        <div class="input-wrapper">
+                            <select id="side" name="side" class="text-input" required>
+                                <option value="">Select side</option>
+                                <option value="long">Long</option>
+                                <option value="short">Short</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="quantity">Quantity / Lots</label>
-                        <input type="number" id="quantity" name="quantity" placeholder="Enter quantity" required>
+                        <label class="label">Quantity / Lots</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="quantity" name="quantity" class="text-input" placeholder="Enter quantity" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="entryPrice">Entry Price</label>
-                        <input type="number" id="entryPrice" name="entryPrice" step="0.01" placeholder="₹ 0.00" required>
+                        <label class="label">Entry Price</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="entryPrice" name="entryPrice" class="text-input" step="0.01" placeholder="0.00" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="exitPrice">Exit Price (optional)</label>
-                        <input type="number" id="exitPrice" name="exitPrice" step="0.01" placeholder="₹ 0.00">
+                        <label class="label">Exit Price <span class="optional">(optional)</span></label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="exitPrice" name="exitPrice" class="text-input" step="0.01" placeholder="0.00">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="stopLoss">Stop Loss</label>
-                        <input type="number" id="stopLoss" name="stopLoss" step="0.01" placeholder="₹ 0.00" required>
+                        <label class="label">Stop Loss</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="stopLoss" name="stopLoss" class="text-input" step="0.01" placeholder="0.00" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="target">Target</label>
-                        <input type="number" id="target" name="target" step="0.01" placeholder="₹ 0.00" required>
+                        <label class="label">Target</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="target" name="target" class="text-input" step="0.01" placeholder="0.00" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="productType">Product Type</label>
-                        <select id="productType" name="productType" required>
-                            <option value="">Select product type</option>
-                            <option value="intraday">Intraday</option>
-                            <option value="delivery">Delivery</option>
-                            <option value="positional">Positional</option>
-                        </select>
+                        <label class="label">Product Type</label>
+                        <div class="input-wrapper">
+                            <select id="productType" name="productType" class="text-input" required>
+                                <option value="">Select product type</option>
+                                <option value="intraday">Intraday</option>
+                                <option value="delivery">Delivery</option>
+                                <option value="positional">Positional</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="form-card">
-                <h2 class="card-title">F&O Specifics (optional)</h2>
+            <section class="form-card optional-section">
+                <h2 class="card-title">F&O Specifics <span class="optional">(optional)</span></h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="expiryDate">Expiry Date</label>
-                        <input type="date" id="expiryDate" name="expiryDate">
+                        <label class="label">Expiry Date</label>
+                        <div class="input-wrapper">
+                            <input type="date" id="expiryDate" name="expiryDate" class="text-input">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="lotSize">Lot Size</label>
-                        <input type="number" id="lotSize" name="lotSize" placeholder="Enter lot size">
+                        <label class="label">Lot Size</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="lotSize" name="lotSize" class="text-input" placeholder="Enter lot size">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="strikePrice">Strike Price</label>
-                        <input type="number" id="strikePrice" name="strikePrice" step="0.01" placeholder="₹ 0.00">
+                        <label class="label">Strike Price</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="strikePrice" name="strikePrice" class="text-input" step="0.01" placeholder="0.00">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="optionType">Option Type</label>
-                        <select id="optionType" name="optionType">
-                            <option value="">Select option type</option>
-                            <option value="ce">CE (Call)</option>
-                            <option value="pe">PE (Put)</option>
-                            <option value="futures">Futures</option>
-                        </select>
+                        <label class="label">Option Type</label>
+                        <div class="input-wrapper">
+                            <select id="optionType" name="optionType" class="text-input">
+                                <option value="">Select option type</option>
+                                <option value="ce">CE (Call)</option>
+                                <option value="pe">PE (Put)</option>
+                                <option value="futures">Futures</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="positionStatus">Position Status</label>
-                        <select id="positionStatus" name="positionStatus">
-                            <option value="">Select status</option>
-                            <option value="closed">Closed</option>
-                            <option value="open">Open</option>
-                            <option value="scaled">Scaled in-out</option>
-                        </select>
+                        <label class="label">Position Status</label>
+                        <div class="input-wrapper">
+                            <select id="positionStatus" name="positionStatus" class="text-input">
+                                <option value="">Select status</option>
+                                <option value="closed">Closed</option>
+                                <option value="open">Open</option>
+                                <option value="scaled">Scaled in-out</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="linkedNews">Linked India Market News (optional)</label>
-                        <input type="text" id="linkedNews" name="linkedNews" placeholder="Attach relevant market news or event">
+                        <label class="label">Linked India Market News <span class="optional">(optional)</span></label>
+                        <div class="input-wrapper">
+                            <input type="text" id="linkedNews" name="linkedNews" class="text-input" placeholder="Attach relevant market news or event">
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="form-card">
+            <section class="form-card optional-section">
                 <h2 class="card-title">Strategy & Setup</h2>
+                <div class="form-group" style="margin-bottom: 24px">
+                    <label class="label">Setup Tags</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="setupTags" value="breakout">
+                            <span class="checkbox-box"></span>
+                            Breakout
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="setupTags" value="pullback">
+                            <span class="checkbox-box"></span>
+                            Pullback
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="setupTags" value="range">
+                            <span class="checkbox-box"></span>
+                            Range
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="setupTags" value="news_based">
+                            <span class="checkbox-box"></span>
+                            News-based
+                        </label>
+                    </div>
+                </div>
+
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Setup Tags</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="setupTags" value="breakout">
-                                <span>Breakout</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="setupTags" value="pullback">
-                                <span>Pullback</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="setupTags" value="range">
-                                <span>Range</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="setupTags" value="news_based">
-                                <span>News-based</span>
-                            </label>
+                    <div class="form-group">
+                        <label class="label">Strategy Name</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="strategyName" name="strategyName" class="text-input" placeholder="Enter strategy name">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="strategyName">Strategy Name</label>
-                        <input type="text" id="strategyName" name="strategyName" placeholder="Enter strategy name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="timeframe">Timeframe</label>
-                        <select id="timeframe" name="timeframe">
-                            <option value="">Select timeframe</option>
-                            <option value="intraday">Intraday</option>
-                            <option value="swing">Swing</option>
-                            <option value="positional">Positional</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="riskTaken">Risk (R) Taken</label>
-                        <input type="number" id="riskTaken" name="riskTaken" step="0.1" placeholder="e.g., 1.0R, 2.0R">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="convictionScore">Conviction Score</label>
-                        <select id="convictionScore" name="convictionScore">
-                            <option value="">Select score</option>
-                            <option value="1">1 - Very Low</option>
-                            <option value="2">2 - Low</option>
-                            <option value="3">3 - Medium</option>
-                            <option value="4">4 - High</option>
-                            <option value="5">5 - Very High</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Tags</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="tags" value="nifty">
-                                <span>NIFTY</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="tags" value="banknifty">
-                                <span>BANKNIFTY</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="tags" value="volatility">
-                                <span>Volatility</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="tags" value="overtraded">
-                                <span>Overtraded</span>
-                            </label>
+                        <label class="label">Timeframe</label>
+                        <div class="input-wrapper">
+                            <select id="timeframe" name="timeframe" class="text-input">
+                                <option value="">Select timeframe</option>
+                                <option value="intraday">Intraday</option>
+                                <option value="swing">Swing</option>
+                                <option value="positional">Positional</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">Risk (R) Taken</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="riskTaken" name="riskTaken" class="text-input" step="0.1" placeholder="e.g., 1.0R, 2.0R">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">Conviction Score</label>
+                        <div class="input-wrapper">
+                            <select id="convictionScore" name="convictionScore" class="text-input">
+                                <option value="">Select score</option>
+                                <option value="1">1 - Very Low</option>
+                                <option value="2">2 - Low</option>
+                                <option value="3">3 - Medium</option>
+                                <option value="4">4 - High</option>
+                                <option value="5">5 - Very High</option>
+                            </select>
+                            <iconify-icon icon="lucide:chevron-down" class="icon-right" style="font-size: 16px"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Tags</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="tags" value="nifty">
+                            <span class="checkbox-box"></span>
+                            NIFTY
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="tags" value="banknifty">
+                            <span class="checkbox-box"></span>
+                            BANKNIFTY
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="tags" value="volatility">
+                            <span class="checkbox-box"></span>
+                            Volatility
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="tags" value="overtraded">
+                            <span class="checkbox-box"></span>
+                            Overtraded
+                        </label>
                     </div>
                 </div>
             </section>
 
             <section class="form-card">
                 <h2 class="card-title">Psychology & Notes</h2>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="preTradePlan">Pre-trade Plan</label>
-                        <textarea id="preTradePlan" name="preTradePlan" rows="4" placeholder="What was your plan before entering this trade?"></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="postTradeReview">Post-trade Review</label>
-                        <textarea id="postTradeReview" name="postTradeReview" rows="4" placeholder="Review your trade execution and outcome"></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Emotional State</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="emotionalState" value="calm">
-                                <span>Calm</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="emotionalState" value="anxious">
-                                <span>Anxious</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="emotionalState" value="fearful">
-                                <span>Fearful</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="emotionalState" value="greedy">
-                                <span>Greedy</span>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="emotionalState" value="revenge">
-                                <span>Revenge trade</span>
-                            </label>
-                        </div>
+                <div class="form-group full-width" style="margin-bottom: 20px">
+                    <label class="label">Pre-trade Plan</label>
+                    <div class="textarea-wrapper">
+                        <textarea id="preTradePlan" name="preTradePlan" class="text-input" rows="4" placeholder="What was your plan before entering this trade?"></textarea>
                     </div>
                 </div>
-            </section>
 
-            <section class="form-card">
-                <h2 class="card-title">Screenshots & Attachments</h2>
-                <p class="section-hint">Screenshots are for reference and analysis</p>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="chartScreenshot">Upload Chart Screenshot</label>
-                        <input type="file" id="chartScreenshot" name="chartScreenshot" accept="image/png,image/jpeg,image/jpg,image/webp">
-                        <small class="field-hint">Upload your trading chart for reference (PNG, JPEG, WebP)</small>
+                <div class="form-group full-width" style="margin-bottom: 20px">
+                    <label class="label">Post-trade Review</label>
+                    <div class="textarea-wrapper">
+                        <textarea id="postTradeReview" name="postTradeReview" class="text-input" rows="4" placeholder="Review your trade execution and outcome"></textarea>
                     </div>
+                </div>
 
-                    <div class="form-group full-width">
-                        <label for="contractNote">Upload Contract Note / Order Book</label>
-                        <input type="file" id="contractNote" name="contractNote" accept="image/png,image/jpeg,image/jpg,image/webp">
-                        <small class="field-hint">Upload your order confirmation or contract note (PNG, JPEG, WebP)</small>
+                <div class="form-group">
+                    <label class="label">Emotional State</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="emotionalState" value="calm">
+                            <span class="checkbox-box"></span>
+                            Calm
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="emotionalState" value="anxious">
+                            <span class="checkbox-box"></span>
+                            Anxious
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="emotionalState" value="fearful">
+                            <span class="checkbox-box"></span>
+                            Fearful
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="emotionalState" value="greedy">
+                            <span class="checkbox-box"></span>
+                            Greedy
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="emotionalState" value="revenge">
+                            <span class="checkbox-box"></span>
+                            Revenge trade
+                        </label>
                     </div>
                 </div>
             </section>

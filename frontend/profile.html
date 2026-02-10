@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>TradeVault – Profile</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="flex min-h-screen">
+
+  <aside class="sidebar w-64 flex flex-col">
+    <div class="sidebar-brand px-6 py-4">TradeVault</div>
+
+    <nav class="flex-1 px-4 space-y-6 text-sm">
+      <div>
+        <p class="nav-section-title">ACCOUNT</p>
+        <a class="nav-link nav-link-active" href="profile.html">Profile</a>
+        <a class="nav-link">Security</a>
+        <a class="nav-link">Others</a>
+      </div>
+
+      <div>
+        <a class="nav-link">Preferences</a>
+      </div>
+    </nav>
+
+    <a href="profile.html" class="section-divider px-4 py-4 flex items-center gap-3" style="text-decoration: none; cursor: pointer;">
+      <div class="avatar"></div>
+      <div>
+        <p class="user-name">Account</p>
+      </div>
+    </a>
+  </aside>
+
+  <main class="flex-1 p-6">
+
+    <div class="flex justify-end mb-6">
+      <button id="themeToggle" class="theme-toggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <div class="lg:col-span-1">
+        <div class="card p-6">
+          <div class="flex flex-col items-center">
+            <div class="relative mb-4">
+              <img id="avatarPreview" src="" alt="Avatar" class="w-32 h-32 rounded-full" style="background-color: var(--accent-green); object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div id="avatarPlaceholder" class="w-32 h-32 rounded-full flex items-center justify-center" style="background-color: var(--accent-green); display: none;">
+                <span class="text-white text-3xl font-bold" id="avatarInitials">-</span>
+              </div>
+            </div>
+            <h2 class="text-xl font-semibold mb-1" style="color: var(--text-primary);" id="profileName">User Name</h2>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);" id="profileEmail">user@example.com</p>
+            <button id="changeAvatarBtn" class="btn-secondary w-full">Change Avatar</button>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+          </div>
+          
+          <div class="mt-6 pt-6" style="border-top: 1px solid var(--border-subtle);">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-sm" style="color: var(--text-secondary);">Role</span>
+                <span class="text-sm font-medium" style="color: var(--text-primary);" id="displayRole">Trader</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm" style="color: var(--text-secondary);">Location</span>
+                <span class="text-sm font-medium" style="color: var(--text-primary);" id="displayLocation">-</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm" style="color: var(--text-secondary);">Joined</span>
+                <span class="text-sm font-medium" style="color: var(--text-primary);" id="displayJoined">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2">
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold mb-6" style="color: var(--text-primary);">Personal Information</h3>
+          
+          <form id="profileForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">First Name</label>
+                <input type="text" id="firstName" class="w-full" placeholder="Enter first name">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Last Name</label>
+                <input type="text" id="lastName" class="w-full" placeholder="Enter last name">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Email</label>
+                <input type="email" id="email" class="w-full" disabled style="opacity: 0.6; cursor: not-allowed;">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Phone</label>
+                <input type="tel" id="phone" class="w-full" placeholder="Enter phone number">
+              </div>
+            </div>
+
+            <div class="pt-4" style="border-top: 1px solid var(--border-subtle);">
+              <h4 class="text-base font-semibold mb-4" style="color: var(--text-primary);">Regional Settings</h4>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Country</label>
+                  <input type="text" id="country" class="w-full" placeholder="Enter country">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2" style="color: var(--text-primary);">Timezone</label>
+                  <select id="timezone" class="w-full">
+                    <option value="">Select timezone</option>
+                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                    <option value="America/New_York">America/New_York (EST)</option>
+                    <option value="Europe/London">Europe/London (GMT)</option>
+                    <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                    <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="location" value="">
+            <input type="hidden" id="role" value="">
+            <input type="hidden" id="joinedAt" value="">
+
+            <div class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--border-subtle);">
+              <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+              <button type="submit" id="saveBtn" class="btn-primary">
+                <span id="saveBtnText">Save Changes</span>
+                <span id="saveBtnLoading" style="display: none;">Saving...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/profile.js"></script>
+</body>
+</html>
